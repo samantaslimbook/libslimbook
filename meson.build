@@ -1,2 +1,2 @@
-project('libslimbook',['c'])
+project('libslimbook',['cpp'])
 subdir('src')
