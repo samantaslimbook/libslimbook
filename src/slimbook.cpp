@@ -41,7 +41,8 @@ struct database_entry_t
 
 database_entry_t database [] = {
 
-    {"PROX-AMD5","SLIMBOOK",0,0},
+    {"PROX-AMD5", "SLIMBOOK", SLB_PLATFORM_QC71, SLB_MODEL_PROX_AMD5},
+    {"HERO-RPL-RTX", "SLIMBOOK", SLB_PLATFORM_QC71, SLB_MODEL_HERO_RPL_RTX},
     {0,0,0,0}
 };
 

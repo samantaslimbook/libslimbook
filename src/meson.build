@@ -1,5 +1,6 @@
 
-libslimbook = library('slimbook', 'slimbook.cpp')
+libslimbook = shared_library('slimbook', 'slimbook.cpp', install: true)
 executable('slimbookctl', ['slimbookctl.cpp'],
-    link_with: libslimbook
+    link_with: libslimbook,
+    install: true
     )
