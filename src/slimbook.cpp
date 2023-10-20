@@ -31,6 +31,20 @@ using namespace std;
 
 thread_local std::string buffer;
 
+struct database_entry_t
+{
+    const char* product_name;
+    const char* board_vendor;
+    uint32_t platform;
+    uint32_t model;
+};
+
+database_entry_t database [] = {
+
+    {"PROX-AMD5","SLIMBOOK",0,0},
+    {0,0,0,0}
+};
+
 static void read_device(string path,string& out)
 {
     ifstream file;
@@ -65,4 +79,40 @@ const char* slb_info_serial_number()
     read_device(SYSFS_DMI"serial_number",buffer);
 
     return buffer.c_str();
+}
+
+uint32_t slb_info_get_model()
+{
+    string product = slb_info_product_name();
+    string vendor = slb_info_board_vendor();
+
+    database_entry_t* entry = database;
+    
+    while (entry->model > 0) {
+        if (product == entry->product_name and vendor == entry->board_vendor) {
+            return entry->model;
+        }
+        
+        entry++;
+    }
+    
+    return SLB_MODEL_UNKNOWN;
+}
+
+uint32_t slb_info_get_platform()
+{
+    string product = slb_info_product_name();
+    string vendor = slb_info_board_vendor();
+
+    database_entry_t* entry = database;
+    
+    while (entry->model > 0) {
+        if (product == entry->product_name and vendor == entry->board_vendor) {
+            return entry->platform;
+        }
+        
+        entry++;
+    }
+
+    return SLB_PLATFORM_UNKNOWN;
 }

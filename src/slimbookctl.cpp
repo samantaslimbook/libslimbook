@@ -28,5 +28,7 @@ int main(int argc,char* argv[])
 {
     cout<<"product:["<<slb_info_product_name()<<"]"<<endl;
     cout<<"vendor:["<<slb_info_board_vendor()<<"]"<<endl;
+    cout<<"model:"<<std::hex<<slb_info_get_model()<<endl;
+    cout<<"platform:"<<slb_info_get_platform()<<endl;
     return 0;
 }
