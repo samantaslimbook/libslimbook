@@ -24,6 +24,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstring>
 #include <fstream>
 #include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -55,31 +56,62 @@ static void read_device(string path,string& out)
     file.close();
 }
 
+static vector<string> get_modules()
+{
+    vector<string> modules;
+    
+    ifstream file;
+    
+    file.open("/proc/modules");
+    
+    while (file.good()) {
+        string module_name;
+        string tmp;
+        
+        file>>module_name;
+        std::getline(file,tmp);
+        modules.push_back(module_name);
+    }
+    
+    file.close();
+    
+    return modules;
+}
+
 const char* slb_info_product_name()
 {
-    buffer.clear();
-
-    read_device(SYSFS_DMI"product_name",buffer);
-
-    return buffer.c_str();
+    try {
+        buffer.clear();
+        read_device(SYSFS_DMI"product_name",buffer);
+        return buffer.c_str();
+    }
+    catch (...) {
+        return nullptr;
+    }
 }
 
 const char* slb_info_board_vendor()
 {
-    buffer.clear();
-
-    read_device(SYSFS_DMI"board_vendor",buffer);
-
-    return buffer.c_str();
+    try {
+        buffer.clear();
+        read_device(SYSFS_DMI"board_vendor",buffer);
+        return buffer.c_str();
+    }
+    catch (...) {
+        return nullptr;
+    }
 }
 
-const char* slb_info_serial_number()
+const char* slb_info_product_serial()
 {
-    buffer.clear();
-
-    read_device(SYSFS_DMI"serial_number",buffer);
-
-    return buffer.c_str();
+    try {
+        buffer.clear();
+        read_device(SYSFS_DMI"product_serial",buffer);
+        return buffer.c_str();
+    }
+    catch (...) {
+        return nullptr;
+    }
 }
 
 uint32_t slb_info_get_model()
@@ -116,4 +148,27 @@ uint32_t slb_info_get_platform()
     }
 
     return SLB_PLATFORM_UNKNOWN;
+}
+
+uint32_t slb_info_is_module_loaded()
+{
+    uint32_t platform = slb_info_get_platform();
+    
+    if (platform == SLB_PLATFORM_UNKNOWN) {
+        return 0;
+    }
+    
+    vector<string> modules = get_modules();
+    
+    for (string mod : modules) {
+        if (platform == SLB_PLATFORM_QC71 and mod == "qc71_laptop") {
+            return 1;
+        }
+        
+        if (platform == SLB_PLATFORM_CLEVO and mod == "clevo_platform") {
+            return 1;
+        }
+    }
+    
+    return 0;
 }

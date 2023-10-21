@@ -21,14 +21,51 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "slimbook.h"
 
 #include <iostream>
+#include <string>
 
 using namespace std;
 
+void show_help()
+{
+    cout<<"Slimbook control tool"<<endl;
+    cout<<"Usage: slimbookctl [command]"<<endl;
+    cout<<"\n"<<endl;
+    cout<<"Commands:"<<endl;
+    cout<<"info: display Slimbook model information"<<endl;
+    cout<<"help: show this help"<<endl;
+}
+
+void show_info()
+{
+    cout<<"product:"<<slb_info_product_name()<<"\n";
+    cout<<"vendor:"<<slb_info_board_vendor()<<"\n";
+    cout<<"serial:"<<slb_info_product_serial()<<"\n";
+    cout<<"model:0x"<<std::hex<<slb_info_get_model()<<"\n";
+    cout<<"platform:0x"<<slb_info_get_platform()<<"\n";
+    cout<<"module loaded:"<<slb_info_is_module_loaded();
+    cout<<endl;
+}
+
 int main(int argc,char* argv[])
 {
-    cout<<"product:["<<slb_info_product_name()<<"]"<<endl;
-    cout<<"vendor:["<<slb_info_board_vendor()<<"]"<<endl;
-    cout<<"model:"<<std::hex<<slb_info_get_model()<<endl;
-    cout<<"platform:"<<slb_info_get_platform()<<endl;
+    string command;
+    
+    if (argc>1) {
+        command = argv[1];
+    }
+    else {
+    
+    }
+    
+    if (command == "info") {
+        show_info();
+        return 0;
+    }
+    
+    if (command == "help") {
+        show_help();
+        return 0;
+    }
+    
     return 0;
 }

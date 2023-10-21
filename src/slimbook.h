@@ -50,10 +50,13 @@ extern "C" const char* slb_info_product_name();
 extern "C" const char* slb_info_board_vendor();
 
 /* Gets DMI serial number. Needs root privileges */
-extern "C" const char* slb_info_serial_number();
+extern "C" const char* slb_info_product_serial();
 
 /* Guess Slimbook model */
 extern "C" uint32_t slb_info_get_model();
 
 /* Guess Slimbook platform */
 extern "C" uint32_t slb_info_get_platform();
+
+/* Checks if platform module is loaded */
+extern "C" uint32_t slb_info_is_module_loaded();
