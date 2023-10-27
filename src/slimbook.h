@@ -60,3 +60,9 @@ extern "C" uint32_t slb_info_get_platform();
 
 /* Checks if platform module is loaded */
 extern "C" uint32_t slb_info_is_module_loaded();
+
+/* Sets keyboard backlight color. Set model to 0 to guess it */
+extern "C" int slb_kbd_backlight_get(uint32_t model, uint32_t* value);
+
+/* Gets keyboard backlight color. Set model to 0 to guess it */
+extern "C" int slb_kbd_backlight_set(uint32_t model, uint32_t value);
