@@ -314,7 +314,7 @@ int slb_kbd_backlight_set(uint32_t model, uint32_t color)
     return ENOENT;
 }
 
-int slb_config_load()
+int slb_config_load(uint32_t model)
 {
     if (model == 0) {
         model = slb_info_get_model();
@@ -329,7 +329,7 @@ int slb_config_load()
     return 0;
 }
 
-int slb_config_store()
+int slb_config_store(uint32_t model)
 {
     if (model == 0) {
         model = slb_info_get_model();

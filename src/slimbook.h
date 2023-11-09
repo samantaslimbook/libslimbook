@@ -83,9 +83,8 @@ extern "C" int slb_kbd_backlight_get(uint32_t model, uint32_t* color);
 /* Gets keyboard backlight color. Set model to 0 to guess it */
 extern "C" int slb_kbd_backlight_set(uint32_t model, uint32_t color);
 
-
 /* Loads configuration from disk to driver. ie: backlight color */
-extern "C" int slb_config_load();
+extern "C" int slb_config_load(uint32_t model);
 
 /* Stores configuration from driver to disk */
-extern "C" int slb_config_store();
+extern "C" int slb_config_store(uint32_t model);
