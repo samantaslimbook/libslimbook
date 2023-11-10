@@ -28,6 +28,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
@@ -377,7 +378,7 @@ int slb_config_store(uint32_t model)
 
     uint32_t platform = get_model_platform(model);
     bool module_loaded = slb_info_is_module_loaded();
-
+    
     Configuration conf;
 
     try {
@@ -397,6 +398,7 @@ int slb_config_store(uint32_t model)
         conf.store();
     }
     catch(...) {
+        cerr<<"Something went wrong"<<endl;
         return EIO;
     }
     

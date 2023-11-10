@@ -23,8 +23,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 
-#define DB_FILE "/var/lib/slimbook.db"
+#define DB_PATH "/var/lib/slimbook/"
+#define DB_FILE DB_PATH"settings.db"
 
 using namespace std;
 
@@ -56,7 +58,6 @@ void Configuration::load()
             if (sep != std::string::npos) {
                 string key = tmp.substr(0,sep);
                 string value = tmp.substr(sep+1,tmp.size());
-                clog<<"["<<key<<"]:["<<value<<"]"<<endl;
                 m_data[key] = value;
             }
         }
@@ -67,6 +68,8 @@ void Configuration::load()
 
 void Configuration::store()
 {
+    std::filesystem::create_directory(DB_PATH);
+    
     ofstream db;
     
     db.open(DB_FILE);
