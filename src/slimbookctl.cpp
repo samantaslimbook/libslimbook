@@ -100,5 +100,13 @@ int main(int argc,char* argv[])
         return 0;
     }
     
+    if (command == "config-load") {
+        slb_config_load(0);
+    }
+
+    if (command == "config-store") {
+        slb_config_store(0);
+    }
+
     return 0;
 }

@@ -38,10 +38,16 @@ class Configuration
     void store();
     
     std::string get(std::string key);
-    
     uint32_t get_u32(std::string key);
+    bool find(std::string key, std::string& out);
+    bool find_u32(std::string key, uint32_t& out);
     
     void set(std::string key, std::string value);
     
     void set_u32(std::string key, uint32_t value);
+
+    std::map<std::string,std::string> data() const
+    {
+        return m_data;
+    }
 };

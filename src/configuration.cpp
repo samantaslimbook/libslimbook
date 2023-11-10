@@ -57,6 +57,7 @@ void Configuration::load()
                 string key = tmp.substr(0,sep);
                 string value = tmp.substr(sep+1,tmp.size());
                 clog<<"["<<key<<"]:["<<value<<"]"<<endl;
+                m_data[key] = value;
             }
         }
         
@@ -72,7 +73,7 @@ void Configuration::store()
     
     if (db.good()) {
         for (auto p : m_data) {
-            
+            db<<p.first<<":"<<p.second<<endl;
         }
         db.close();
     }
@@ -88,6 +89,36 @@ uint32_t Configuration::get_u32(string key)
     uint32_t value = std::stoi(m_data[key],0,16);
     
     return value;
+}
+
+bool Configuration::find(std::string key, std::string& out)
+{
+    std::map<string,string>::iterator it;
+
+    it = m_data.find(key);
+
+    if (it != m_data.end()) {
+        out = it->second;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Configuration::find_u32(std::string key, uint32_t& out)
+{
+    std::map<string,string>::iterator it;
+
+    it = m_data.find(key);
+
+    if (it != m_data.end()) {
+        out = std::stoi(it->first,0,16);
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 void Configuration::set(string key, string value)
