@@ -343,7 +343,21 @@ int slb_kbd_backlight_get(uint32_t model, uint32_t* color)
     }
     
     if (model == SLB_MODEL_ELEMENTAL_15_I12 or model == SLB_MODEL_HERO_S_TGL_RTX) {
-        //TODO: clevo backlight here
+        try {
+            string svalue;
+            uint32_t ival;
+            
+            read_device(SYSFS_CLEVO"color_left",svalue);
+            ival = std::stoi(svalue,0,16);
+            
+            *color = ival;
+            
+            return 0;
+        }
+        catch (...) {
+            return EIO;
+        }
+            
     }
     
     return ENOENT;
