@@ -53,6 +53,18 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_PLATFORM_QC71               0x0100
 #define SLB_PLATFORM_CLEVO              0x0200
 
+typedef struct {
+    /* device size in bytes */
+    uint64_t size;
+
+    /* device speed in MT/s */
+    uint32_t speed;
+
+    /* device type: see SMBIOS Type 17 for reference */
+    uint8_t type;
+
+} slb_memory_device_t;
+
 /* Gets DMI product name */
 extern "C" const char* slb_info_product_name();
 
@@ -91,6 +103,9 @@ extern "C" uint64_t slb_info_total_memory();
 
 /* Gets available system memory (not used by any process or buffer) */
 extern "C" uint64_t slb_info_available_memory();
+
+/* Query DMI tables for memory devices */
+extern "C" int slb_info_memory_devices(slb_memory_device_t* devices,size_t* count);
 
 /* Sets keyboard backlight color. Set model to 0 to guess it */
 extern "C" int slb_kbd_backlight_get(uint32_t model, uint32_t* color);

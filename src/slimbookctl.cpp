@@ -25,6 +25,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <map>
 
+#include <fstream>
+
 using namespace std;
 
 void show_help()
@@ -154,6 +156,71 @@ int main(int argc,char* argv[])
         clog<<"storing slimbook configuration:";
         int status = slb_config_store(0);
         clog<<status<<endl;
+    }
+
+    if (command == "ram") {
+        struct smbios_header {
+            uint8_t type;
+            uint8_t length;
+            uint16_t handle;
+        } header;
+
+        struct smbios_memory_device {
+            uint16_t phy_handle;
+            uint16_t err_handle;
+            uint16_t total_width;
+            uint16_t data_width;
+            uint16_t size;
+            uint8_t form_factor;
+            uint8_t device_set;
+            uint8_t device_locator;
+            uint8_t bank_locator;
+            uint8_t type;
+            uint16_t detail;
+            uint16_t speed;
+            uint8_t manufacturer;
+            uint8_t serial;
+            uint8_t asset;
+            uint8_t part;
+        } __attribute__((packed));
+
+        ifstream file;
+
+        file.open("/sys/firmware/dmi/tables/DMI",std::ifstream::binary);
+        while (file.good()) {
+            file.read((char*)&header,sizeof(header));
+            //clog<<"type:"<<(int)header.type<<" length "<<(int)header.length<<endl;
+            //clog<<std::dec<<"pos:"<<file.tellg()<<endl;
+            //size_t next = file.tellg() - sizeof(header) + header.length;
+            //file.seekg(next);
+
+            if (header.type == 17) {
+                clog<<"type:"<<(int)header.type<<" length "<<(int)header.length<<endl;
+                smbios_memory_device info;
+                file.read((char*)&info,sizeof(smbios_memory_device));
+                clog<<std::dec<<info.size<<":"<<info.speed<<":"<<(int)info.type<<":"<<info.detail<<endl;
+            }
+            else {
+                file.seekg(header.length - sizeof(header),std::ios::cur);
+            }
+
+            int end = 0;
+
+            do {
+                char tmp;
+                file.read(&tmp,1);
+                if (tmp==0) {
+                    end++;
+                }
+                else {
+                    end = 0;
+                }
+            } while (end!=2);
+
+
+        }
+
+        file.close();
     }
 
     return 0;
