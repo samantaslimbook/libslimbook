@@ -158,69 +158,27 @@ int main(int argc,char* argv[])
         clog<<status<<endl;
     }
 
-    if (command == "ram") {
-        struct smbios_header {
-            uint8_t type;
-            uint8_t length;
-            uint16_t handle;
-        } header;
+    if (command == "dmi") {
+        slb_smbios_entry_t* entries = nullptr;
+        int count = 0;
 
-        struct smbios_memory_device {
-            uint16_t phy_handle;
-            uint16_t err_handle;
-            uint16_t total_width;
-            uint16_t data_width;
-            uint16_t size;
-            uint8_t form_factor;
-            uint8_t device_set;
-            uint8_t device_locator;
-            uint8_t bank_locator;
-            uint8_t type;
-            uint16_t detail;
-            uint16_t speed;
-            uint8_t manufacturer;
-            uint8_t serial;
-            uint8_t asset;
-            uint8_t part;
-        } __attribute__((packed));
-
-        ifstream file;
-
-        file.open("/sys/firmware/dmi/tables/DMI",std::ifstream::binary);
-        while (file.good()) {
-            file.read((char*)&header,sizeof(header));
-            //clog<<"type:"<<(int)header.type<<" length "<<(int)header.length<<endl;
-            //clog<<std::dec<<"pos:"<<file.tellg()<<endl;
-            //size_t next = file.tellg() - sizeof(header) + header.length;
-            //file.seekg(next);
-
-            if (header.type == 17) {
-                clog<<"type:"<<(int)header.type<<" length "<<(int)header.length<<endl;
-                smbios_memory_device info;
-                file.read((char*)&info,sizeof(smbios_memory_device));
-                clog<<std::dec<<info.size<<":"<<info.speed<<":"<<(int)info.type<<":"<<info.detail<<endl;
-            }
-            else {
-                file.seekg(header.length - sizeof(header),std::ios::cur);
-            }
-
-            int end = 0;
-
-            do {
-                char tmp;
-                file.read(&tmp,1);
-                if (tmp==0) {
-                    end++;
+        int status = slb_smbios_get(&entries,&count);
+        if (status == 0) {
+            for (int n=0;n<count;n++) {
+                //cout<<"type:"<<(int)entries[n].type<<endl;
+                if (entries[n].type == 4) {
+                    cout<<"cpu: "<<entries[n].data.processor.version<<" cores:"<<(int)entries[n].data.processor.cores<<endl;
                 }
-                else {
-                    end = 0;
+
+                if (entries[n].type == 17) {
+                    cout<<"memory device:"<<(int)entries[n].data.memory_device.type<<" "<<entries[n].data.memory_device.size<<" GB speed:"<<entries[n].data.memory_device.speed<<" MT/s"<<endl;
                 }
-            } while (end!=2);
-
-
+            }
+            slb_smbios_free(entries);
         }
-
-        file.close();
+        else {
+            return status;
+        }
     }
 
     return 0;

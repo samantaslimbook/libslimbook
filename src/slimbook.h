@@ -19,6 +19,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define SLB_MODEL_UNKNOWN               0x0000
 
@@ -62,8 +63,23 @@ typedef struct {
 
     /* device type: see SMBIOS Type 17 for reference */
     uint8_t type;
+} slb_smbios_memory_device_t;
 
-} slb_memory_device_t;
+typedef struct {
+    uint8_t cores;
+    char version[48];
+} slb_smbios_processor_t;
+
+typedef struct {
+    uint8_t type;
+    uint8_t length;
+    uint16_t handle;
+
+    union {
+        slb_smbios_memory_device_t memory_device;
+        slb_smbios_processor_t processor;
+    } data;
+} slb_smbios_entry_t;
 
 /* Gets DMI product name */
 extern "C" const char* slb_info_product_name();
@@ -104,8 +120,11 @@ extern "C" uint64_t slb_info_total_memory();
 /* Gets available system memory (not used by any process or buffer) */
 extern "C" uint64_t slb_info_available_memory();
 
-/* Query DMI tables for memory devices */
-extern "C" int slb_info_memory_devices(slb_memory_device_t* devices,size_t* count);
+/* Query DMI tables  */
+extern "C" int slb_smbios_get(slb_smbios_entry_t** entries,int* count);
+
+/* Free smbios entries */
+extern "C" int slb_smbios_free(slb_smbios_entry_t* entries);
 
 /* Sets keyboard backlight color. Set model to 0 to guess it */
 extern "C" int slb_kbd_backlight_get(uint32_t model, uint32_t* color);
