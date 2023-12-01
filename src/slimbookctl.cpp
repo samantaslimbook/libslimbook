@@ -47,14 +47,14 @@ void show_info()
 {
     map<int,string> yesno = {{0,"no"},{1,"yes"}};
     
-    cout<<"kernel:"<<slb_info_kernel()<<"\n";
-    
     int64_t uptime = slb_info_uptime();
     int64_t h = uptime / 3600;
     int64_t m = (uptime / 60) % 60;
     int64_t s = uptime % 60;
     
     cout<<"uptime:"<<h<<"h "<<m<<"m "<<s<<"s\n";
+    cout<<"kernel:"<<slb_info_kernel()<<"\n";
+    
     uint64_t tr,ar;
     
     tr = slb_info_total_memory();
@@ -62,13 +62,34 @@ void show_info()
     
     uint64_t mb = 1024*1024;
     
-    cout<<"memory:"<<ar/mb<<"/"<<tr/mb<<" MB\n";
+    cout<<"memory free/total:"<<ar/mb<<"/"<<tr/mb<<" MB\n";
     
     cout<<"product:"<<slb_info_product_name()<<"\n";
     cout<<"vendor:"<<slb_info_board_vendor()<<"\n";
     cout<<"bios:"<<slb_info_bios_version()<<"\n";
     cout<<"EC:"<<slb_info_ec_firmware_release()<<"\n";
     cout<<"serial:"<<slb_info_product_serial()<<"\n";
+    
+    // boot mode
+    
+    slb_smbios_entry_t* entries = nullptr;
+    int count = 0;
+
+    int status = slb_smbios_get(&entries,&count);
+    if (status == 0) {
+        for (int n=0;n<count;n++) {
+            if (entries[n].type == 4) {
+                string name = entries[n].data.processor.version;
+                cout<<"cpu:"<<name<<" x "<<(int)entries[n].data.processor.cores<<endl;
+            }
+            
+            if (entries[n].type == 17) {
+            }
+        }
+        
+        slb_smbios_free(entries);
+    }
+    
     cout<<"model:0x"<<std::hex<<slb_info_get_model()<<"\n";
     
     uint32_t platform = slb_info_get_platform();

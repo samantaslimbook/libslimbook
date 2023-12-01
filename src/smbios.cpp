@@ -109,6 +109,10 @@ int slb_smbios_get(slb_smbios_entry_t** entries,int* count)
 
 int slb_smbios_free(slb_smbios_entry_t* entries)
 {
+    if (entries) {
+        free(entries);
+    }
+    
     return 0;
 }
 
