@@ -29,6 +29,30 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 using namespace std;
 
+static string trim(string in)
+{
+    string out;
+    size_t first = 0;
+    size_t last = 0;
+    bool ffound = false;
+    
+    for (size_t n=0;n<in.size();n++) {
+        char c = in[n];
+        
+        if (!ffound and c!=' ') {
+            ffound = true;
+            first = n;
+        }
+        
+        if (c!=' ') {
+            last = n;
+        }
+    }
+    out = in.substr(first,last+1);
+    
+    return out;
+}
+
 void show_help()
 {
     cout<<"Slimbook control tool"<<endl;
@@ -79,11 +103,14 @@ void show_info()
     if (status == 0) {
         for (int n=0;n<count;n++) {
             if (entries[n].type == 4) {
-                string name = entries[n].data.processor.version;
+                string name = trim(entries[n].data.processor.version);
                 cout<<"cpu:"<<name<<" x "<<(int)entries[n].data.processor.cores<<endl;
             }
             
             if (entries[n].type == 17) {
+                if (entries[n].data.memory_device.type > 2) {
+                    cout<<"memory device:"<<entries[n].data.memory_device.size<<" GB "<<entries[n].data.memory_device.speed<<" MT/s"<<endl;
+                }
             }
         }
         
