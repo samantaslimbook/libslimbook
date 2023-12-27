@@ -1,0 +1,8 @@
+#!/bin/sh
+
+PKG=`date | sha1sum | cut -d " " -f1`
+PKG="/tmp/slimbook-report-$PKG.tar.gz"
+DIR=`dirname $1`
+NAME=`basename $1`
+tar -C $DIR -zcvf $PKG $NAME 2>/dev/null
+echo $PKG
