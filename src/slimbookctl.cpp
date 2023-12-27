@@ -34,8 +34,22 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <random>
 
 using namespace std;
+
+static string generate_id()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> range(0,0xffffffff);
+    
+    stringstream ss;
+    
+    ss<<std::hex<<std::setfill('0')<<std::setw(8)<<range(gen);
+    
+    return ss.str();
+}
 
 static int run_command(vector<string>args)
 {
@@ -314,11 +328,13 @@ int main(int argc,char* argv[])
     
     if (command == "report") {
     
-        std::filesystem::create_directory("/tmp/slimbook-report");
+        string id = generate_id();
+        string tmp_name = "/tmp/slimbook-report-" + id;
+        std::filesystem::create_directory(tmp_name);
     
         for (const auto& entry : std::filesystem::directory_iterator("/usr/libexec/slimbook/report.d/")) {
             clog<<"running "<<entry.path().filename()<<endl;
-            string output = "/tmp/slimbook-report/" + (string)entry.path().filename() + ".txt";
+            string output = tmp_name + (string)entry.path().filename() + ".txt";
             int status = run_command({entry.path(),entry.path().filename(),output});
             clog<<"status:"<<status<<endl;
         }
