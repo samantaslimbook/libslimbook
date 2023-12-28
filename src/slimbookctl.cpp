@@ -34,19 +34,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <fstream>
 #include <sstream>
 #include <filesystem>
-#include <random>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
-static string generate_id()
+string generate_id()
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> range(0,0xffffffff);
+    std::srand(std::time(nullptr));
+    int rnd = std::rand();
     
     stringstream ss;
     
-    ss<<std::hex<<std::setfill('0')<<std::setw(8)<<range(gen);
+    ss<<std::hex<<std::setfill('0')<<std::setw(8)<<rnd;
     
     return ss.str();
 }
@@ -61,16 +61,19 @@ static int run_command(vector<string>args)
         if (status < 0) {
             exit(status);
         }
+        
+        //this may not happen
+        return 0;
     }
     else {
         int status;
         int ret = waitpid(pid,&status,0);
         
-        if (ret > 0) {
-            return WIFEXITED(status);
+        if (ret > 0 and WIFEXITED(status)) {
+            return WEXITSTATUS(status);
         }
         
-        return 0;
+        return 1;
     }
 }
 
@@ -329,17 +332,26 @@ int main(int argc,char* argv[])
     if (command == "report") {
     
         string id = generate_id();
-        string tmp_name = "/tmp/slimbook-report-" + id;
+        string tmp_name = "/tmp/slimbook-report-" + id + "/";
         std::filesystem::create_directory(tmp_name);
     
         for (const auto& entry : std::filesystem::directory_iterator("/usr/libexec/slimbook/report.d/")) {
-            clog<<"running "<<entry.path().filename()<<endl;
-            string output = tmp_name + (string)entry.path().filename() + ".txt";
+            clog<<"running "<<entry.path().filename().string()<<" ";
+            string output = tmp_name + entry.path().filename().string() + ".txt";
             int status = run_command({entry.path(),entry.path().filename(),output});
-            clog<<"status:"<<status<<endl;
+            
+            if (status == 0) {
+                clog<<"✓"<<endl;
+            }
+            else {
+                clog<<"✗"<<endl;
+            }
         }
         
-        run_command({"/usr/libexec/slimbook/report-pack","report-pack","/tmp/slimbook-report"});
+        run_command({"/usr/libexec/slimbook/report-pack","report-pack",tmp_name});
+        
+        string targz = "/tmp/slimbook-report-" + id + ".tar.gz"; 
+        cout<<"report "<<targz<<endl;
     }
 
     return 0;
