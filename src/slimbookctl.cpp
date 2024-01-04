@@ -337,7 +337,7 @@ int main(int argc,char* argv[])
         std::filesystem::create_directory(tmp_name);
     
         for (const auto& entry : std::filesystem::directory_iterator("/usr/libexec/slimbook/report.d/")) {
-            clog<<"running "<<entry.path().filename().string()<<" ";
+            clog<<" running "<<entry.path().filename().string()<<" ";
             string output = tmp_name + entry.path().filename().string() + ".txt";
             int status = run_command({entry.path(),entry.path().filename(),output});
             
@@ -345,7 +345,12 @@ int main(int argc,char* argv[])
                 clog<<"✓"<<endl;
             }
             else {
-                clog<<"✗"<<endl;
+                if (status == 200) {
+                    clog<<"⚑"<<endl;
+                }
+                else {
+                    clog<<"✗"<<endl;
+                }
             }
         }
         
