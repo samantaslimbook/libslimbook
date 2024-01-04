@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -f /usr/bin/flatpakg ]
+if [ -f /usr/bin/flatpak ]
 then
     flatpak list > $1
 else
