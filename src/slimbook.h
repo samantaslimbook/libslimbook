@@ -56,6 +56,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define SLB_MAX_PROCESSOR_VERSION  48
 
+#define SLB_SCAN_QC71_SUPER_LOCK        0x68
+#define SLB_SCAN_QC71_SILENT_MODE       0x69
+#define SLB_SCAN_QC71_TOUCHPAD_SWITCH   0x76
+
 typedef struct {
     /* device size in bytes */
     uint64_t size;
@@ -140,6 +144,15 @@ extern "C" int slb_config_load(uint32_t model);
 
 /* Stores configuration from driver to disk */
 extern "C" int slb_config_store(uint32_t model);
+
+/* Gets keyboard device path, or null if does not apply */
+extern "C" const char* slb_keyboard_device();
+
+/* Gets module evdev device path, or null if does not apply */
+extern "C" const char* slb_module_device();
+
+/* Gets touchpad device path, or null if does not apply */
+extern "C" const char* slb_touchpad_device();
 
 /* Gets Fn lock status */
 extern "C" int slb_qc71_fn_lock_get(uint32_t* value);
