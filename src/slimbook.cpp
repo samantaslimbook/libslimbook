@@ -71,6 +71,8 @@ database_entry_t database [] = {
     {"ESSENTIAL-15-11 ", "SLIMBOOK", SLB_PLATFORM_CLEVO, SLB_MODEL_ESSENTIAL_15_11},
     {"Elemental15-I12", "SLIMBOOK", SLB_PLATFORM_CLEVO, SLB_MODEL_ELEMENTAL_15_I12},
     {"Elemental14-I12", "SLIMBOOK", SLB_PLATFORM_CLEVO, SLB_MODEL_ELEMENTAL_14_I12},
+    {"EXCALIBUR-14-AMD7", "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_14_AMD7},
+    {"EXCALIBUR-16-AMD7", "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16_AMD7},
     {0,0,0,0}
 };
 
@@ -488,6 +490,7 @@ const char* slb_keyboard_device()
     
     switch (platform) {
         case SLB_PLATFORM_QC71:
+        case SLB_PLATFORM_Z16:
             buffer = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
             return buffer.c_str();
         break;
