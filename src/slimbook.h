@@ -21,6 +21,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdint.h>
 #include <stddef.h>
 
+#define SLB_FAMILY_MASK                 0xffffff00
+
 #define SLB_MODEL_UNKNOWN               0x0000
 
 #define SLB_MODEL_EXECUTIVE             0x0100
@@ -113,6 +115,9 @@ extern "C" const char* slb_info_ec_firmware_release();
 
 /* Guess Slimbook model */
 extern "C" uint32_t slb_info_get_model();
+
+/* Get Slimbook model family */
+extern "C" uint32_t slb_info_get_family();
 
 /* Guess Slimbook platform */
 extern "C" uint32_t slb_info_get_platform();

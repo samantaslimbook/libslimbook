@@ -209,6 +209,11 @@ uint32_t slb_info_get_model()
     return SLB_MODEL_UNKNOWN;
 }
 
+uint32_t slb_info_get_family()
+{
+    return slb_info_get_model() & SLB_FAMILY_MASK;
+}
+
 uint32_t slb_info_get_platform()
 {
     string product = slb_info_product_name();
