@@ -493,6 +493,14 @@ int slb_config_load(uint32_t model)
             slb_kbd_backlight_set(model,backlight);
         }
     }
+    
+    if (module_loaded and (model == SLB_MODEL_ELEMENTAL_15_I12 or model == SLB_MODEL_HERO_S_TGL_RTX)) {
+        uint32_t backlight;
+
+        if (conf.find_u32("clevo.backlight",backlight)) {
+            slb_kbd_backlight_set(model,backlight);
+        }
+    }
 
     return 0;
 }
@@ -524,6 +532,14 @@ int slb_config_store(uint32_t model)
 
             slb_kbd_backlight_get(model,&backlight);
             conf.set_u32("qc71.hero.backlight",backlight);
+        }
+        
+        if (module_loaded and (model == SLB_MODEL_ELEMENTAL_15_I12 or model == SLB_MODEL_HERO_S_TGL_RTX)) {
+        
+            uint32_t backlight = 0;
+
+            slb_kbd_backlight_get(model,&backlight);
+            conf.set_u32("clevo.backlight",backlight);
         }
 
         conf.store();
