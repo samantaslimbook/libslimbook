@@ -308,6 +308,53 @@ uint64_t slb_info_available_memory()
 
 }
 
+const char* slb_info_keyboard_device()
+{
+    uint32_t platform = slb_info_get_platform();
+    
+    switch (platform) {
+        case SLB_PLATFORM_QC71:
+        case SLB_PLATFORM_Z16:
+            buffer = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
+            return buffer.c_str();
+        break;
+        
+        default:
+            return nullptr;
+    }
+}
+
+const char* slb_info_module_device()
+{
+    uint32_t platform = slb_info_get_platform();
+    
+    switch (platform) {
+        case SLB_PLATFORM_QC71:
+            buffer = "/dev/input/by-path/platform-qc71_laptop-event";
+            return buffer.c_str();
+        break;
+        
+        default:
+            return nullptr;
+    }
+}
+
+const char* slb_info_touchpad_device()
+{
+    
+    uint32_t platform = slb_info_get_platform();
+    
+    switch (platform) {
+        case SLB_PLATFORM_QC71:
+            buffer = "/dev/input/by-path/platform-AMDI0010:01-event-mouse";
+            return buffer.c_str();
+        break;
+        
+        default:
+            return nullptr;
+    }
+}
+
 int slb_kbd_backlight_get(uint32_t model, uint32_t* color)
 {
     if (color == nullptr) {
@@ -487,53 +534,6 @@ int slb_config_store(uint32_t model)
     }
     
     return 0;
-}
-
-const char* slb_keyboard_device()
-{
-    uint32_t platform = slb_info_get_platform();
-    
-    switch (platform) {
-        case SLB_PLATFORM_QC71:
-        case SLB_PLATFORM_Z16:
-            buffer = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
-            return buffer.c_str();
-        break;
-        
-        default:
-            return nullptr;
-    }
-}
-
-const char* slb_module_device()
-{
-    uint32_t platform = slb_info_get_platform();
-    
-    switch (platform) {
-        case SLB_PLATFORM_QC71:
-            buffer = "/dev/input/by-path/platform-qc71_laptop-event";
-            return buffer.c_str();
-        break;
-        
-        default:
-            return nullptr;
-    }
-}
-
-const char* slb_touchpad_device()
-{
-    
-    uint32_t platform = slb_info_get_platform();
-    
-    switch (platform) {
-        case SLB_PLATFORM_QC71:
-            buffer = "/dev/input/by-path/platform-AMDI0010:01-event-mouse";
-            return buffer.c_str();
-        break;
-        
-        default:
-            return nullptr;
-    }
 }
 
 int slb_qc71_fn_lock_get(uint32_t* value)
