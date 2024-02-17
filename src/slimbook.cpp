@@ -456,6 +456,8 @@ int slb_kbd_backlight_set(uint32_t model, uint32_t color)
             stringstream ss;
             ss<<std::hex<<"0x"<<std::setfill('0')<<std::setw(6)<<color;
             write_device(SYSFS_CLEVO"color_left",ss.str());
+            
+            return 0;
         }
         catch (...) {
             return EIO;
