@@ -118,7 +118,11 @@ typedef struct {
     } data;
 } slb_smbios_entry_t;
 
+/* Retrieves DMI info and cache it. No need to call this function */
 extern "C" int32_t slb_info_retrieve();
+
+/* Confidence of model guessing. 0 equals exact matching, beyond 2 is assigned as unknown device */
+extern "C" int32_t slb_info_confidence();
 
 /* Gets DMI product name */
 extern "C" const char* slb_info_product_name();

@@ -87,7 +87,7 @@ database_entry_t database [] = {
     {"EXCALIBUR-14-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_14_AMD7},
     {"EXCALIBUR-16-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16_AMD7},
     
-    {"ZERO-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_UNKNOWN, SLB_MODEL_ONE_AMD8},
+    {"ONE-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_UNKNOWN, SLB_MODEL_ONE_AMD8},
     {0,0,0,0,0}
 };
 
@@ -166,7 +166,7 @@ static int levenshtein(const char* s1, const char* s2)
     return(matrix[s2len][s1len]);
 }
 
-static string pretty_string(string& src)
+static string pretty_string(string src)
 {
 
     bool start = false;
@@ -189,7 +189,14 @@ static string pretty_string(string& src)
         return "";
     }
     
-    return src.substr(first,(end-first)+1);
+    string out;
+    
+    for (size_t n=first;n<(end+1);n++) {
+        char c = std::tolower(src[n]);
+        out+=c;
+    }
+    
+    return out;
 }
 
 static void read_device(string path,string& out)
@@ -296,31 +303,79 @@ int32_t slb_info_retrieve()
     }
     
     string pretty_product = pretty_string(info_product);
-    string pretty_vendor = pretty_string(info_vendor);
+    //string pretty_vendor = pretty_string(info_vendor);
     string pretty_sku = pretty_string(info_sku);
     
     database_entry_t* entry = database;
     database_entry_t* min_entry = entry;
     int min_dist = 0xFFFF;
     
+    vector<database_entry_t*> drawn;
+    
     while (entry->model > 0) {
-        int dist = levenshtein(entry->product_name, pretty_product.c_str());
-        clog<<"-"<<entry->product_name<<":"<<pretty_product<<":"<<dist<<endl;
+        string source = pretty_product;
+        string target = pretty_string(entry->product_name);
+        
+        int dist = levenshtein(source.c_str(),target.c_str());
         
         if (dist < min_dist) {
             min_dist = dist;
             min_entry = entry;
         }
+        
+        if (dist == 0) {
+            drawn.push_back(entry);
+        }
+        
         entry++;
     }
     
     info_confidence = min_dist;
+    
+    if (min_dist == 0) {
+        if (drawn.size() > 0) {
+            database_entry_t* min_sku = drawn[0];
+            int min_dist_sku = 0xFFFF;
+            
+            for (database_entry_t* drawn_entry: drawn) {
+                if (drawn_entry->product_sku) {
+                    int dist = levenshtein(drawn_entry->product_sku, pretty_sku.c_str());
+                    
+                    if (dist < min_dist_sku) {
+                        min_sku = drawn_entry;
+                        min_dist_sku = dist;
+                    }
+                    
+                }
+            }
+            
+            min_entry = min_sku;
+        }
+    }
+    else {
+        if (min_dist > 2) {
+            info_model = SLB_MODEL_UNKNOWN;
+            info_platform = SLB_PLATFORM_UNKNOWN;
+
+            info_cached = true;
+            
+            return 1;
+        }
+    }
+    
     info_model = min_entry->model;
     info_platform = min_entry->platform;
     
     info_cached = true;
     
     return 0;
+}
+
+int32_t slb_info_confidence()
+{
+    slb_info_retrieve();
+    
+    return info_confidence;
 }
 
 const char* slb_info_product_name()
@@ -367,44 +422,6 @@ const char* slb_info_ec_firmware_release()
 
 uint32_t slb_info_get_model()
 {
-/*
-    string product;
-    string vendor;
-    string sku;
-    
-    try {
-        read_device(SYSFS_DMI"product_name",product);
-        read_device(SYSFS_DMI"board_vendor",vendor);
-        read_device(SYSFS_DMI"product_sku",sku);
-    }
-    catch(...) {
-        return SLB_MODEL_UNKNOWN;
-    }
-    
-    product = pretty_string(product);
-    vendor = pretty_string(vendor);
-    sku = pretty_string(sku);
-    
-    database_entry_t* entry = database;
-    
-    while (entry->model > 0) {
-        if (product == entry->product_name and vendor == entry->board_vendor) {
-            if (entry->product_sku) {
-                if (entry->product_sku == sku) {
-                    return entry->model;
-                }
-            }
-            else {
-                return entry->model;
-            }
-        }
-        
-        entry++;
-    }
-    
-    return SLB_MODEL_UNKNOWN;
-*/
-
     slb_info_retrieve();
     
     return info_model;
