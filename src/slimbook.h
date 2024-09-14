@@ -118,6 +118,8 @@ typedef struct {
     } data;
 } slb_smbios_entry_t;
 
+extern "C" int32_t slb_info_retrieve();
+
 /* Gets DMI product name */
 extern "C" const char* slb_info_product_name();
 

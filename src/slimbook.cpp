@@ -106,8 +106,65 @@ family_t family_database [] = {
     {SLB_MODEL_ELEMENTAL,"elemental"},
     {SLB_MODEL_EXCALIBUR,"excalibur"},
     {SLB_MODEL_HERO_S,"hero-s"},
+    {SLB_MODEL_ZERO,"zero"},
+    {SLB_MODEL_ONE,"one"},
     {SLB_MODEL_UNKNOWN,"unknown"}
 };
+
+/* cached info */
+bool info_cached = false;
+string info_vendor;
+string info_product;
+string info_sku;
+string info_bios_version;
+string info_ec_firmware_release;
+string info_serial;
+
+uint32_t info_platform;
+uint32_t info_model;
+int32_t info_confidence;
+
+static int min3i(int a,int b,int c)
+{
+    if (a <= b && a <= c) {
+        return a;
+    }
+    else {
+        if(b <= a && b <= c) {
+            return b;
+        }
+        else {
+            if(c <= a && c <= b) {
+                return c;
+            }
+        }
+    }
+
+    // may we land here?
+    return -1;
+}
+
+/*
+ Based on this:
+ https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C
+*/
+static int levenshtein(const char* s1, const char* s2)
+{
+    unsigned int x, y, s1len, s2len;
+    s1len = strlen(s1);
+    s2len = strlen(s2);
+    unsigned int matrix[s2len+1][s1len+1];
+    matrix[0][0] = 0;
+    for (x = 1; x <= s2len; x++)
+        matrix[x][0] = matrix[x-1][0] + 1;
+    for (y = 1; y <= s1len; y++)
+        matrix[0][y] = matrix[0][y-1] + 1;
+    for (x = 1; x <= s2len; x++)
+        for (y = 1; y <= s1len; y++)
+            matrix[x][y] = min3i(matrix[x-1][y] + 1, matrix[x][y-1] + 1, matrix[x-1][y-1] + (s1[y-1] == s2[x-1] ? 0 : 1));
+
+    return(matrix[s2len][s1len]);
+}
 
 static string pretty_string(string& src)
 {
@@ -190,80 +247,127 @@ static uint32_t get_model_platform(uint32_t model)
     return SLB_PLATFORM_UNKNOWN;
 }
 
-const char* slb_info_product_name()
+int32_t slb_info_retrieve()
 {
+    if (info_cached) {
+        return 0;
+    }
+    
     try {
-        buffer.clear();
-        read_device(SYSFS_DMI"product_name",buffer);
-        return buffer.c_str();
+        read_device(SYSFS_DMI"product_name", info_product);
     }
     catch (...) {
-        return nullptr;
+        info_product = "<empty>";
     }
+    
+    try {
+        read_device(SYSFS_DMI"product_sku", info_sku);
+    }
+    catch (...) {
+        info_sku = "<empty>";
+    }
+    
+    try {
+        read_device(SYSFS_DMI"board_vendor", info_vendor);
+    }
+    catch (...) {
+        info_vendor = "<empty>";
+    }
+    
+    try {
+        read_device(SYSFS_DMI"bios_version", info_bios_version);
+    }
+    catch (...) {
+        info_bios_version = "<empty>";
+    }
+    
+    try {
+        read_device(SYSFS_DMI"ec_firmware_release", info_ec_firmware_release);
+    }
+    catch (...) {
+        info_ec_firmware_release = "<empty>";
+    }
+    
+    try {
+        read_device(SYSFS_DMI"serial", info_serial);
+    }
+    catch (...) {
+        info_serial = "<empty>";
+    }
+    
+    string pretty_product = pretty_string(info_product);
+    string pretty_vendor = pretty_string(info_vendor);
+    string pretty_sku = pretty_string(info_sku);
+    
+    database_entry_t* entry = database;
+    database_entry_t* min_entry = entry;
+    int min_dist = 0xFFFF;
+    
+    while (entry->model > 0) {
+        int dist = levenshtein(entry->product_name, pretty_product.c_str());
+        clog<<"-"<<entry->product_name<<":"<<pretty_product<<":"<<dist<<endl;
+        
+        if (dist < min_dist) {
+            min_dist = dist;
+            min_entry = entry;
+        }
+        entry++;
+    }
+    
+    info_confidence = min_dist;
+    info_model = min_entry->model;
+    info_platform = min_entry->platform;
+    
+    info_cached = true;
+    
+    return 0;
+}
+
+const char* slb_info_product_name()
+{
+    slb_info_retrieve();
+    
+    return info_product.c_str();
 }
 
 const char* slb_info_product_sku()
 {
-    try {
-        buffer.clear();
-        read_device(SYSFS_DMI"product_sku",buffer);
-        return buffer.c_str();
-    }
-    catch (...) {
-        return nullptr;
-    }
+    slb_info_retrieve();
+    
+    return info_sku.c_str();
 }
 
 const char* slb_info_board_vendor()
 {
-    try {
-        buffer.clear();
-        read_device(SYSFS_DMI"board_vendor",buffer);
-        return buffer.c_str();
-    }
-    catch (...) {
-        return nullptr;
-    }
+    slb_info_retrieve();
+    
+    return info_vendor.c_str();
 }
 
 const char* slb_info_product_serial()
 {
-    try {
-        buffer.clear();
-        read_device(SYSFS_DMI"product_serial",buffer);
-        return buffer.c_str();
-    }
-    catch (...) {
-        return nullptr;
-    }
+    slb_info_retrieve();
+    
+    return info_serial.c_str();
 }
 
 const char* slb_info_bios_version()
 {
-    try {
-        buffer.clear();
-        read_device(SYSFS_DMI"bios_version",buffer);
-        return buffer.c_str();
-    }
-    catch (...) {
-        return nullptr;
-    }
+    slb_info_retrieve();
+    
+    return info_bios_version.c_str();
 }
 
 const char* slb_info_ec_firmware_release()
 {
-    try {
-        buffer.clear();
-        read_device(SYSFS_DMI"ec_firmware_release",buffer);
-        return buffer.c_str();
-    }
-    catch (...) {
-        return nullptr;
-    }
+    slb_info_retrieve();
+    
+    return info_ec_firmware_release.c_str();
 }
 
 uint32_t slb_info_get_model()
 {
+/*
     string product;
     string vendor;
     string sku;
@@ -299,6 +403,11 @@ uint32_t slb_info_get_model()
     }
     
     return SLB_MODEL_UNKNOWN;
+*/
+
+    slb_info_retrieve();
+    
+    return info_model;
 }
 
 uint32_t slb_info_get_family()
@@ -326,31 +435,9 @@ const char* slb_info_get_family_name()
 
 uint32_t slb_info_get_platform()
 {
-    string product;
-    string vendor;
-    
-    try {
-        read_device(SYSFS_DMI"product_name",product);
-        read_device(SYSFS_DMI"board_vendor",vendor);
-    }
-    catch(...) {
-        return SLB_PLATFORM_UNKNOWN;
-    }
-    
-    product = pretty_string(product);
-    vendor = pretty_string(vendor);
+    slb_info_retrieve();
 
-    database_entry_t* entry = database;
-    
-    while (entry->model > 0) {
-        if (product == entry->product_name and vendor == entry->board_vendor) {
-            return entry->platform;
-        }
-        
-        entry++;
-    }
-
-    return SLB_PLATFORM_UNKNOWN;
+    return info_platform;
 }
 
 uint32_t slb_info_find_platform(uint32_t model)
@@ -376,7 +463,7 @@ uint32_t slb_info_is_module_loaded()
         return SLB_MODULE_UNKNOWN;
     }
     
-    if (platform == SLB_PLATFORM_EXCALIBUR) {
+    if (platform == SLB_PLATFORM_Z16) {
         return SLB_MODULE_NOT_NEEDED;
     }
     
