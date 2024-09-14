@@ -86,6 +86,8 @@ database_entry_t database [] = {
 
     {"EXCALIBUR-14-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_14_AMD7},
     {"EXCALIBUR-16-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16_AMD7},
+    
+    {"ZERO-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_UNKNOWN, SLB_MODEL_ONE_AMD8},
     {0,0,0,0,0}
 };
 
@@ -371,22 +373,26 @@ uint32_t slb_info_is_module_loaded()
     uint32_t platform = slb_info_get_platform();
     
     if (platform == SLB_PLATFORM_UNKNOWN) {
-        return 0;
+        return SLB_MODULE_UNKNOWN;
+    }
+    
+    if (platform == SLB_PLATFORM_EXCALIBUR) {
+        return SLB_MODULE_NOT_NEEDED;
     }
     
     vector<string> modules = get_modules();
     
     for (string mod : modules) {
         if (platform == SLB_PLATFORM_QC71 and mod == MODULE_QC71) {
-            return 1;
+            return SLB_MODULE_LOADED;
         }
         
         if (platform == SLB_PLATFORM_CLEVO and mod == MODULE_CLEVO) {
-            return 1;
+            return SLB_MODULE_LOADED;
         }
     }
     
-    return 0;
+    return SLB_MODULE_NOT_LOADED;
 }
 
 int64_t slb_info_uptime()
