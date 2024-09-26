@@ -60,15 +60,21 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_MODEL_EXCALIBUR             0x4000
 #define SLB_MODEL_EXCALIBUR_14_AMD7     0x4001
 #define SLB_MODEL_EXCALIBUR_16_AMD7     0x4002
+#define SLB_MODEL_EXCALIBUR_16R_AMD8    0x4003
 
 #define SLB_MODEL_HERO_S                0x8000
 #define SLB_MODEL_HERO_S_TGL_RTX        0x8001
 
 #define SLB_MODEL_ZERO              0x01000000
-#define SLB_MODEL_ZERO_I3           0x01000001
+#define SLB_MODEL_ZERO_V4           0x01000001
+#define SLB_MODEL_ZERO_V5           0x01000002
+#define SLB_MODEL_ZERO_N100_4RJ     0x01000003
 
 #define SLB_MODEL_ONE               0x02000000
 #define SLB_MODEL_ONE_AMD8          0x02000001
+
+#define SLB_MODEL_NAS               0x04000000
+#define SLB_MODEL_NAS_AMD8_8HDD_4RJ 0x04000001
 
 #define SLB_PLATFORM_UNKNOWN            0x0000
 #define SLB_PLATFORM_QC71               0x0100
