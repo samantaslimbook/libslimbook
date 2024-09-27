@@ -58,9 +58,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_MODEL_ELEMENTAL_14_I13      0x2006
 
 #define SLB_MODEL_EXCALIBUR             0x4000
-#define SLB_MODEL_EXCALIBUR_14_AMD7     0x4001
 #define SLB_MODEL_EXCALIBUR_16_AMD7     0x4002
-#define SLB_MODEL_EXCALIBUR_16R_AMD8    0x4003
+#define SLB_MODEL_EXCALIBUR_16_AMD8     0x4003
+#define SLB_MODEL_EXCALIBUR_16R_AMD8    0x4004
 
 #define SLB_MODEL_HERO_S                0x8000
 #define SLB_MODEL_HERO_S_TGL_RTX        0x8001
@@ -80,6 +80,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_PLATFORM_QC71               0x0100
 #define SLB_PLATFORM_CLEVO              0x0200
 #define SLB_PLATFORM_Z16                0x0400
+#define SLB_PLATFORM_HMT16              0x0800
 
 #define SLB_MAX_PROCESSOR_VERSION  48
 
@@ -90,6 +91,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_SCAN_Z16_ENERGY_SAVER_MODE  0xf2
 #define SLB_SCAN_Z16_BALANCED_MODE      0xf9
 #define SLB_SCAN_Z16_PERFORMANCE_MODE   0xe2
+
+#define SLB_SCAN_HMT16_ENERGY_SAVER_MODE 0xf2
+#define SLB_SCAN_HMT16_BALANCED_MODE     0xf9
+#define SLB_SCAN_HMT16_PERFORMANCE_MODE  0xe2
 
 #define SLB_MODULE_NOT_LOADED           0x00
 #define SLB_MODULE_LOADED               0x01

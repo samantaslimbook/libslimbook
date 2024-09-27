@@ -84,9 +84,9 @@ database_entry_t database [] = {
     {"ELEMENTAL 15-I13", 0, "SLIMBOOK", SLB_PLATFORM_CLEVO, SLB_MODEL_ELEMENTAL_15_I13},
     {"ELEMENTAL 14-I13", 0, "SLIMBOOK", SLB_PLATFORM_CLEVO, SLB_MODEL_ELEMENTAL_14_I13},
 
-    {"EXCALIBUR-14-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_14_AMD7},
     {"EXCALIBUR-16-AMD7", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16_AMD7},
-    {"EXCALIBUR-16R-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16R_AMD8},
+    {"EXCALIBUR-16-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_Z16, SLB_MODEL_EXCALIBUR_16_AMD8},
+    {"EXCALIBUR-16R-AMD8", 0, "SLIMBOOK", SLB_PLATFORM_HMT16, SLB_MODEL_EXCALIBUR_16R_AMD8},
     
     {"ZERO-N100-4RJ", 0, "SLIMBOOK", SLB_PLATFORM_UNKNOWN, SLB_MODEL_ZERO_N100_4RJ},
     {"ZERO-V5", 0, "SLIMBOOK", SLB_PLATFORM_UNKNOWN, SLB_MODEL_ZERO_V5},
@@ -321,22 +321,26 @@ int32_t slb_info_retrieve()
     vector<database_entry_t*> drawn;
     
     while (entry->model > 0) {
-        //TODO: check vendor
+        string source_vendor = pretty_vendor;
+        string target_vendor = pretty_string(entry->board_vendor);
 
-        string source = pretty_product;
-        string target = pretty_string(entry->product_name);
-        
-        int dist = levenshtein(source.c_str(),target.c_str());
-        
-        if (dist < min_dist) {
-            min_dist = dist;
-            min_entry = entry;
+        // vendor is a strict comparision
+        if (source_vendor == target_vendor) {
+
+            string source = pretty_product;
+            string target = pretty_string(entry->product_name);
+
+            int dist = levenshtein(source.c_str(),target.c_str());
+
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_entry = entry;
+            }
+
+            if (dist == 0) {
+                drawn.push_back(entry);
+            }
         }
-        
-        if (dist == 0) {
-            drawn.push_back(entry);
-        }
-        
         entry++;
     }
     
@@ -491,6 +495,10 @@ uint32_t slb_info_is_module_loaded()
     }
     
     if (platform == SLB_PLATFORM_Z16) {
+        return SLB_MODULE_NOT_NEEDED;
+    }
+
+    if (platform == SLB_PLATFORM_HMT16) {
         return SLB_MODULE_NOT_NEEDED;
     }
     
@@ -948,5 +956,3 @@ int slb_qc71_turbo_mode_set(uint32_t value)
 
     return SLB_SUCCESS;
 }
-
-
