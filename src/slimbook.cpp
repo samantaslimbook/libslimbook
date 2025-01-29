@@ -310,7 +310,7 @@ int32_t slb_info_retrieve()
     }
     
     try {
-        read_device(SYSFS_DMI"serial", info_serial);
+        read_device(SYSFS_DMI"product_serial", info_serial);
     }
     catch (...) {
         info_serial = "<empty>";
