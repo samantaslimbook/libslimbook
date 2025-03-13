@@ -61,6 +61,7 @@ static int run_command(vector<string>args)
     if (pid == 0) {
         //switching to root UID
         setuid(0);
+
         int status = execl(args[0].c_str(),args[1].c_str(),args[2].c_str(),(char *)0);
         if (status < 0) {
             exit(status);
@@ -499,13 +500,16 @@ int main(int argc,char* argv[])
                 }
             }
         }
-        
-        run_command({"/usr/libexec/slimbook/report-pack","report-pack",tmp_name});
 
-        string targz = "slimbook-report-" + id + ".tar.gz"; 
+        char buf[20];
+        struct tm time = *localtime(&now);
+        time_t now = time(&now);
 
-        std::filesystem::copy_file("/tmp/"+targz, tmp_name + targz);
-        std::filesystem::remove("/tmp/"+targz);
+        strftime(buf, sizeof(buf), "%F-%H-%M-%S", time);
+
+        run_command({"/usr/libexec/slimbook/report-pack","report-pack","/tmp/slimbook-report-"+buf});
+
+        string targz = "slimbook-report-" + buf + ".tar.gz"; 
 
         cout<<"report "<<tmp_name+targz<<endl;
     }
