@@ -501,9 +501,13 @@ int main(int argc,char* argv[])
         }
         
         run_command({"/usr/libexec/slimbook/report-pack","report-pack",tmp_name});
-        
-        string targz = "/tmp/slimbook-report-" + id + ".tar.gz"; 
-        cout<<"report "<<targz<<endl;
+
+        string targz = "slimbook-report-" + id + ".tar.gz"; 
+
+        std::filesystem::copy_file("/tmp/"+targz, tmp_name + targz);
+        std::filesystem::remove("/tmp/"+targz);
+
+        cout<<"report "<<tmp_name+targz<<endl;
     }
     
     if (command == "show-dmi") {
