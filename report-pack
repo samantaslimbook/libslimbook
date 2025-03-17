@@ -1,6 +1,9 @@
 #!/bin/sh
+PKG="$2.tar.gz"
 
-DIR=`dirname $1`
-NAME=`basename $1`
-PKG="$DIR/$NAME.tar.gz"
-tar -C $DIR -zcvf $PKG $NAME >/dev/null
+echo "$1"
+echo "$2"
+echo "$PKG"
+
+cd /tmp/
+tar -zcvf $PKG $1

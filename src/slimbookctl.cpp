@@ -37,6 +37,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
+#include <cstring>
 
 #define SLB_REPORT_PRIVATE "SLB_REPORT_PRIVATE"
 
@@ -486,7 +487,7 @@ int main(int argc,char* argv[])
         for (const auto& entry : std::filesystem::directory_iterator("/usr/libexec/slimbook/report.d/")) {
             clog<<" running "<<entry.path().filename().string()<<" ";
             string output = tmp_name + entry.path().filename().string() + ".txt";
-            int status = run_command({entry.path(),entry.path().filename(),output});
+            int status = 0;//run_command({entry.path(),entry.path().filename(),output});
             
             if (status == 0) {
                 clog<<"✓"<<endl;
@@ -502,16 +503,27 @@ int main(int argc,char* argv[])
         }
 
         char buf[20];
+        char* name;
+        size_t report_size = 18 + sizeof(buf);
+        time_t now = time(NULL);
         struct tm time = *localtime(&now);
-        time_t now = time(&now);
 
-        strftime(buf, sizeof(buf), "%F-%H-%M-%S", time);
+        name = (char*)malloc(report_size);
 
-        run_command({"/usr/libexec/slimbook/report-pack","report-pack","/tmp/slimbook-report-"+buf});
+        strftime(buf, sizeof(buf), "%F-%H-%M-%S", &time);
 
-        string targz = "slimbook-report-" + buf + ".tar.gz"; 
+        snprintf(name, report_size, "%s%s", "slimbook-report-" ,buf);
 
-        cout<<"report "<<tmp_name+targz<<endl;
+        cout << tmp_name << endl;
+        cout << name << endl;
+
+        string name_str = name;
+
+        run_command({"/usr/libexec/slimbook/report-pack","report-pack", tmp_name, name_str}); 
+
+        cout<<"report " << tmp_name << name << ".tar.gz" << endl; 
+
+        free(name);
     }
     
     if (command == "show-dmi") {
