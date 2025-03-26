@@ -117,7 +117,7 @@ static string trim(string in)
 
 static string to_human(uint64_t value)
 {
-    string magnitude = "";
+    string magnitude = "B";
     double tmp = value;
     
     if (tmp > 1024) {
@@ -232,7 +232,8 @@ string get_info()
     }
     
     // boot mode
-    std::filesystem::exists("/sys/firmware/efi") ? sout<<"boot mode: UEFI\n" : sout<<"boot mode: legacy\n";
+
+    sout << (std::filesystem::exists("/sys/firmware/efi") ? "boot mode: UEFI\n" : "boot mode: legacy\n");
 
     int ac_state;
     
