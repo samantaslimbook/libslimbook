@@ -88,9 +88,9 @@ int slb_smbios_get(slb_smbios_entry_t** entries,int* count)
 
             if (entry.type == 17) {
 
-                entry.data.memory_device.size = *((uint16_t*)(&raw[0x0C])) == 0x7FFF ?  *((uint16_t*)(&raw[0x1C])) : *((uint16_t*)(&raw[0x0C])) & 0x7FFF;
+                entry.data.memory_device.size = *((uint16_t*)(&raw[0x0C])) == 0x7FFF ?  *((uint32_t*)(&raw[0x1C])) : *((uint16_t*)(&raw[0x0C])) & 0x7FFF;
                 entry.data.memory_device.size_unit = *((uint16_t*)(&raw[0x0C])) == 0x7FFF ? 0 : (*((uint16_t*)(&raw[0x0C])) & 0x8000) != 0;
-                entry.data.memory_device.speed = *((uint16_t*)(&raw[0x15]));
+                entry.data.memory_device.speed = *((uint16_t*)(&raw[0x15])) == 0xFFFF ? *((uint32_t*)(&raw[0x54])) : *((uint16_t*)(&raw[0x15]));
                 entry.data.memory_device.type = raw[0x12];
             }
 
