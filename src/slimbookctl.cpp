@@ -284,7 +284,6 @@ string get_info()
             if (entries[n].type == 4) {
                 string name = trim(entries[n].data.processor.version);
                 
-                // this may need another dmi var for a thread count bigger than 256
                 int count = entries[n].data.processor.threads;
                  
                 sout<<"cpu:"<<name<<" x "<<count<<endl;
@@ -292,7 +291,7 @@ string get_info()
             
             if (entries[n].type == 17) {
                 if (entries[n].data.memory_device.type > 2) {
-                    sout<<"memory device:"<<entries[n].data.memory_device.size<<" MB "<<entries[n].data.memory_device.speed<<" MT/s"<<endl;
+                    sout<<"memory device:"<<entries[n].data.memory_device.size<< (entries[n].data.memory_device.size_unit == 0 ? " MB " : " KB ") << entries[n].data.memory_device.speed<<" MT/s"<<endl;
                 }
             }
         }
