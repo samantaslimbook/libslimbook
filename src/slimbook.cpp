@@ -289,7 +289,6 @@ int32_t slb_info_retrieve()
     _get_info_dev("product_sku", &info_sku);
     _get_info_dev("board_vendor", &info_vendor);
     _get_info_dev("bios_version", &info_bios_version);
-    _get_info_dev("bios_version", &info_bios_version);
     _get_info_dev("ec_firmware_release", &info_ec_firmware_release);
     _get_info_dev("product_serial", &info_serial);
     
