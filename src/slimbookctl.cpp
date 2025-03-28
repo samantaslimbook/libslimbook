@@ -347,31 +347,29 @@ string get_info()
             {SLB_QC71_PROFILE_PERFORMANCE,"performance"}
         };
 
-        map<int, string>* profile_ptr = nullptr;
-
         uint32_t profile = 0;
         string profile_name = "unknown";
+        map<int, string> chosen_profile;
 
         switch (slb_info_get_family()) {
             case SLB_MODEL_PROX:
             case SLB_MODEL_EXECUTIVE:
-                profile_ptr = &profile_gen_1;
+                chosen_profile = profile_gen_1;
             break;
 
             case SLB_MODEL_TITAN:
             case SLB_MODEL_HERO:
-                profile_ptr = &profile_gen_2;
+                chosen_profile = profile_gen_2;
             break;
 
             case SLB_MODEL_EVO:
             case SLB_MODEL_CREATIVE:
-                profile_ptr = &profile_gen_3;
+                chosen_profile = profile_gen_3;
             break;
-
         }
 
         if (slb_qc71_profile_get(&profile) == 0) {
-            profile_name = (*profile_ptr)[profile];
+            profile_name = chosen_profile[profile];
         }
 
         sout<<"profile:"<<profile_name<<"\n";
