@@ -252,6 +252,12 @@ extern "C" int slb_qc71_super_lock_get(uint32_t* value);
 /* Gets Super lock status */
 extern "C" int slb_qc71_super_lock_set(uint32_t value);
 
+/* Gets RPM for primary fan */
+extern "C" int slb_qc71_primary_fan_get(uint32_t* value);
+
+/* Gets RPM for secondary fan */
+extern "C" int slb_qc71_secondary_fan_get(uint32_t* value);
+
 /* Gets Silent mode status */
 extern "C" int slb_qc71_silent_mode_get(uint32_t* value);
 

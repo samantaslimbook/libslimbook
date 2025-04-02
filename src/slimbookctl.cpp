@@ -300,12 +300,38 @@ string get_info()
         slb_smbios_free(entries);
     }
     
-    sout<<"\n";
+    int module_status = slb_info_is_module_loaded();
+    uint32_t platform = slb_info_get_platform();
+
+    bool module_loaded = module_status == SLB_MODULE_LOADED;
     
+    if(module_loaded){
+        switch(platform){
+            case SLB_PLATFORM_QC71:
+                uint32_t fan1,fan2;
+
+                slb_qc71_primary_fan_get(&fan1);
+                slb_qc71_secondary_fan_get(&fan2);
+
+                sout << "primary fan speed: " << fan1 << " RPM" << endl;
+                sout << "secondary fan speed: " << fan2 << " RPM" << endl; 
+
+                break;
+
+            case SLB_PLATFORM_CLEVO:
+                //todo
+                break;
+        
+            default:
+                break;
+        }
+    }
+
+    sout<<"\n";
+
     uint32_t model = slb_info_get_model();
     sout<<"model:0x"<<std::hex<<model<<"\n";
     
-    uint32_t platform = slb_info_get_platform();
     sout<<"platform:0x"<<platform<<"\n";
     
     sout<<"family:"<<slb_info_get_family_name()<<"\n";
@@ -316,12 +342,11 @@ string get_info()
         sout<<"confidence:"<<std::dec<<confidence<<"\n";
     }
     
-    int module_status = slb_info_is_module_loaded();
     sout<<"module loaded:"<<module_status_string[module_status]<<"\n";
     
     sout<<"\n";
     
-    if (module_status == SLB_MODULE_LOADED and platform == SLB_PLATFORM_QC71) {
+    if (module_loaded and platform == SLB_PLATFORM_QC71) {
         uint32_t value = 0;
         
         slb_qc71_fn_lock_get(&value);

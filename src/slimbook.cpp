@@ -31,6 +31,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <filesystem>
 
 using namespace std;
 
@@ -213,6 +214,23 @@ static string pretty_string(string src)
     }
     
     return out;
+}
+
+static bool find_file(string path, string file, string* out){
+    *out = "";
+
+    for(const filesystem::directory_entry& entry : filesystem::directory_iterator(path)){
+        for(const filesystem::directory_entry& entryRecDir : filesystem::directory_iterator(entry.path())){
+            string entryPath = entryRecDir.path().string();
+        
+            if(entryPath.find(file) != string::npos){
+                *out = entryPath.substr(0, entryPath.size() - file.size());
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 static void read_device(string path,string& out)
@@ -908,6 +926,44 @@ int slb_qc71_super_lock_set(uint32_t value)
     }
 
     return SLB_SUCCESS;
+}
+
+#define QC71_HWMON SYSFS_QC71"hwmon/"
+
+static int _slb_qc71_fan_get_common(string fan, uint32_t* value){
+    string spath;
+
+    find_file(QC71_HWMON, fan, &spath);
+
+    if (value == nullptr ) {
+        return EINVAL;
+    }
+    
+    try {
+        if(strcmp(spath.c_str(), "") == 0){
+            *value = -1;
+        }
+        else{
+            string svalue;
+
+            read_device(spath+fan,svalue);
+            *value = std::stoi(svalue,0,10);
+        }
+    }
+    catch (...) {
+        return EIO;
+    }
+    
+    return SLB_SUCCESS;
+}
+
+int slb_qc71_primary_fan_get(uint32_t* value){
+    return _slb_qc71_fan_get_common("fan1_input", value);
+}
+
+int slb_qc71_secondary_fan_get(uint32_t* value){
+    return _slb_qc71_fan_get_common("fan2_input", value);
+
 }
 
 int slb_qc71_silent_mode_get(uint32_t* value)
