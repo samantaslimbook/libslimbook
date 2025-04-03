@@ -899,14 +899,14 @@ int slb_qc71_super_lock_set(uint32_t value)
 static int _slb_qc71_fan_get_common(string fan, uint32_t* value){
     string spath;
 
-    find_file(QC71_HWMON, fan, &spath);
+    find_file(QC71_HWMON, fan, spath);
 
     if (value == nullptr ) {
         return EINVAL;
     }
     
     try {
-        if(strcmp(spath.c_str(), "") == 0){
+        if(spath.size() == 0){
             *value = -1;
         }
         else{

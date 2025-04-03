@@ -24,13 +24,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 
 /* Tries to find file recursively in path */
-bool find_file(std::string path, std::string file, std::string* out);
+bool find_file(std::string path, std::string file, std::string& out);
 
 /* Tries to find text in file passed by string */
 bool find_in_filestr(std::string str, std::string path);
 
-/* Tries to find text in file passed by a handle*/
-bool find_in_file(std::string str, FILE* f);
+/* Tries to find text in file passed by a stream*/
+bool find_in_file(std::string str, std::ifstream& f);
 
 /* Reads from the device's file */
 void read_device(std::string path, std::string& out);

@@ -7,13 +7,13 @@ using namespace std;
 #include <iostream>
 #include <regex>
 
-bool find_file(string path, string file, string *out) {
-    *out = "";
+bool find_file(string path, string file, string& out) {
+    out = "";
 
     for (const auto &entryRecDir : filesystem::recursive_directory_iterator(path)) {
         string entryPath = entryRecDir.path().string();
         if (entryPath.find(file) != string::npos) {
-            *out = entryPath.substr(0, entryPath.size() - file.size());
+            out = entryPath.substr(0, entryPath.size() - file.size());
             return true;
         }
     }
@@ -21,27 +21,26 @@ bool find_file(string path, string file, string *out) {
     return false;
 }
 
-bool find_in_file(string str, FILE* f){
-    if (f == nullptr) {
-        return false;
-    }
-
-    char buf[256];
+bool find_in_file(string str, ifstream& f){
+    string line;
     regex e(str);
 
-    while (fgets(buf, sizeof(buf), f) != nullptr) {
-        if (regex_search(buf, e)) {
+    while (getline(f, line)) {
+        if (regex_search(line, e)) {
             return true;
         }
     }
 
+    return false;
 }
 
 bool find_in_filestr(string str, string path) {
-    FILE *f = fopen(path.c_str(), "r+");
+    ifstream f;
+
+    f.open(path.c_str());
     bool ret = find_in_file(str, f);
     
-    fclose(f);
+    f.close();
 
     return ret;
 }

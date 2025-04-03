@@ -308,10 +308,10 @@ string get_info()
     if(find_in_filestr("amdgpu", "/proc/modules")){
         #define SYS_AMDGPU "/sys/class/drm/card%d/device/"
         string vram_val = "1";
-        char buf[sizeof(SYS_AMDGPU) + sizeof("mem_info_vram_total")];
+        char buf[sizeof(SYS_AMDGPU)];
 
         for(int i = 0; i < 8; i++){
-            sprintf(buf, SYS_AMDGPU, i);
+            snprintf(buf, sizeof(buf), SYS_AMDGPU, i);
             if(filesystem::exists(buf)){
                 break;
             }
