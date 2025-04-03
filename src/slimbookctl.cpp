@@ -19,6 +19,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "slimbook.h"
+#include "common.h"
 
 #include <sys/statvfs.h>
 #include <sys/types.h>
@@ -37,6 +38,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
+#include <regex>
+#include <string.h>
 
 #define SLB_REPORT_PRIVATE "SLB_REPORT_PRIVATE"
 
@@ -276,6 +279,8 @@ string get_info()
     else {
         sout<<"serial:"<<slb_info_product_serial()<<"\n";
     }
+
+    sout<<"\n";
     
     slb_smbios_entry_t* entries = nullptr;
     int count = 0;
@@ -298,6 +303,55 @@ string get_info()
         }
         
         slb_smbios_free(entries);
+    }
+
+    if(find_in_filestr("amdgpu", "/proc/modules")){
+        #define SYS_AMDGPU "/sys/class/drm/card%d/device/"
+        string vram_val = "1";
+        char buf[sizeof(SYS_AMDGPU) + sizeof("mem_info_vram_total")];
+
+        for(int i = 0; i < 8; i++){
+            sprintf(buf, SYS_AMDGPU, i);
+            if(filesystem::exists(buf)){
+                break;
+            }
+        }
+
+        read_device(string(buf) + "mem_info_vram_total", vram_val);
+
+        sout << "UMA Framebuffer: " << to_human(stoull(vram_val)) << endl;
+    }
+
+    sout<<"\n";
+
+    slb_sys_battery_info bat = {0};
+
+    if(slb_battery_info_get(&bat) == 0){
+        string stat;
+
+        switch(bat.status){
+            case 0:
+                stat = "Unknown";
+                break;
+            case 1:
+                stat = "Charging";
+                break;            
+            case 2:
+                stat = "Discharging";
+                break;            
+            case 3:
+                stat = "Not charging";
+                break;
+            case 4:
+                stat = "Full";
+                break;
+            default:
+                stat = "Unknown";
+        }
+
+        uint32_t charge = bat.charge;
+
+        sout << "battery info: " << (int)(bat.capacity) << "% " << stat + " " << charge << " mAh" << endl;
     }
     
     int module_status = slb_info_is_module_loaded();
@@ -326,6 +380,8 @@ string get_info()
                 break;
         }
     }
+
+    
 
     sout<<"\n";
 

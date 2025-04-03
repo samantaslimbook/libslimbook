@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "slimbook.h"
 #include "configuration.h"
+#include "common.h"
 
 #include <sys/sysinfo.h>
 
@@ -214,41 +215,6 @@ static string pretty_string(string src)
     }
     
     return out;
-}
-
-static bool find_file(string path, string file, string* out){
-    *out = "";
-
-    for(const filesystem::directory_entry& entry : filesystem::directory_iterator(path)){
-        for(const filesystem::directory_entry& entryRecDir : filesystem::directory_iterator(entry.path())){
-            string entryPath = entryRecDir.path().string();
-        
-            if(entryPath.find(file) != string::npos){
-                *out = entryPath.substr(0, entryPath.size() - file.size());
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-static void read_device(string path,string& out)
-{
-    ifstream file;
-
-    file.open(path.c_str());
-    std::getline(file,out);
-    file.close();
-}
-
-static void write_device(string path,string in)
-{
-    ofstream file;
-
-    file.open(path.c_str());
-    file<<in;
-    file.close();
 }
 
 static vector<string> get_modules()
@@ -964,6 +930,51 @@ int slb_qc71_primary_fan_get(uint32_t* value){
 int slb_qc71_secondary_fan_get(uint32_t* value){
     return _slb_qc71_fan_get_common("fan2_input", value);
 
+}
+
+#define SYS_PWS "/sys/class/power_supply/"
+
+int slb_battery_info_get(slb_sys_battery_info* info){
+    if(info == nullptr){
+        return EINVAL;
+    }
+
+    if(!filesystem::exists(SYS_PWS"/BAT0/")){
+        return ENOENT;
+    }
+    
+    try {
+        string svalue;
+
+        read_device(SYS_PWS"/BAT0/capacity",svalue);
+        info->capacity = std::stoi(svalue,0,10);
+
+        read_device(SYS_PWS"/BAT0/charge_now", svalue);
+        info->charge = (std::stoi(svalue,0,10) / 100);
+        
+        read_device(SYS_PWS"/BAT0/status",svalue);
+
+        if(strcmp(svalue.c_str(), "Charging") == 0){
+            info->status = 1;
+        }
+        else if(strcmp(svalue.c_str(), "Discharging") == 0){
+            info->status = 2;
+        }
+        else if(strcmp(svalue.c_str(), "Not charging") == 0){
+            info->status = 3;
+        }
+        else if(strcmp(svalue.c_str(), "Full") == 0){
+            info->status = 4;
+        }
+        else {
+            info->status = 0;
+        }
+    }
+    catch (...) {
+        return EIO;
+    }
+
+    return SLB_SUCCESS;
 }
 
 int slb_qc71_silent_mode_get(uint32_t* value)
