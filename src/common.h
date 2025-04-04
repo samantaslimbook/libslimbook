@@ -22,20 +22,18 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_COMMON_H
 
 #include <string>
+#include <vector>
 
 /* Tries to find file recursively in path */
 bool find_file(std::string path, std::string file, std::string& out);
-
-/* Tries to find text in file passed by string */
-bool find_in_filestr(std::string str, std::string path);
-
-/* Tries to find text in file passed by a stream*/
-bool find_in_file(std::string str, std::ifstream& f);
 
 /* Reads from the device's file */
 void read_device(std::string path, std::string& out);
 
 /* Writes to the device's file */
 void write_device(std::string in, std::string out);
+
+/* Retrieves all modules loaded */
+std::vector<std::string> get_modules(void);
 
 #endif

@@ -217,28 +217,6 @@ static string pretty_string(string src)
     return out;
 }
 
-static vector<string> get_modules()
-{
-    vector<string> modules;
-    
-    ifstream file;
-    
-    file.open("/proc/modules");
-    
-    while (file.good()) {
-        string module_name;
-        string tmp;
-        
-        file>>module_name;
-        std::getline(file,tmp);
-        modules.push_back(module_name);
-    }
-    
-    file.close();
-    
-    return modules;
-}
-
 static uint32_t get_model_platform(uint32_t model)
 {
     database_entry_t* entry = database;

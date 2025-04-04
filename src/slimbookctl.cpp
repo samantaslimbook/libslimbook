@@ -305,7 +305,18 @@ string get_info()
         slb_smbios_free(entries);
     }
 
-    if(find_in_filestr("amdgpu", "/proc/modules")){
+    vector<string> modules = get_modules();
+    bool modFound = false;
+
+    for (string mod : modules) {
+        modFound = mod == "amdgpu" ? true : false;
+
+        if(modFound){
+            break;
+        }
+    }
+
+    if(modFound){
         #define SYS_AMDGPU "/sys/class/drm/card%d/device/"
         string vram_val = "1";
         char buf[sizeof(SYS_AMDGPU)];
