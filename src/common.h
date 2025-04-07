@@ -24,6 +24,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <vector>
 
+#define ALIGN(data, alignto) ((data) & ~((alignto)-1))
+
 /* Tries to find file recursively in path */
 bool find_file(std::string path, std::string file, std::string& out);
 
