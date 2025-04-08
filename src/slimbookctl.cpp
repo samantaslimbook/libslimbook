@@ -418,7 +418,7 @@ static void _pci_reg_wr(pci_dev* dev, uint32_t addr, uint32_t data){
 
 #define MSG_ARG_ADDR(base, num) ((base) + 4 * (num))
 
-uint32_t _smu_amd_send_req(smu_amd* smu, uint32_t addr_msg, uint32_t* args){
+uint32_t _smu_amd_send_req(smu_amd* smu, uint32_t msg, uint32_t* args){
     uint32_t res = 0;
 
     _pci_reg_wr(smu->dev, smu->res, 0);
@@ -426,7 +426,7 @@ uint32_t _smu_amd_send_req(smu_amd* smu, uint32_t addr_msg, uint32_t* args){
     _pci_reg_wr(smu->dev, MSG_ARG_ADDR(smu->arg_base, 0), args[0]);
     _pci_reg_wr(smu->dev, MSG_ARG_ADDR(smu->arg_base, 1), args[1]);
 
-    _pci_reg_wr(smu->dev, smu->msg, addr_msg);
+    _pci_reg_wr(smu->dev, smu->msg, msg);
 
     while(res == 0){
         res = _pci_reg_rd(smu->dev, smu->res);
@@ -452,33 +452,12 @@ void _map_dev_addr(uintptr_t addr){
 
 void _free_map_dev(){
     if(phys_map != MAP_FAILED){
-        munmap(phys_map, 4096);
+        munmap((void*)phys_map, 4096);
     }
 }
 
-float _get_TDP_amd(){
-    float uw;
-
-    uint32_t cpuregs[4];
-    uint32_t smuargs[2] = {0};
-
-    uint32_t family;
-    uint32_t model;
-    uint32_t design = 0;
-
+uint32_t _request_addr(uint32_t design, uintptr_t* addr, smu_amd** smu, uint32_t* smuargs){
     uint32_t table_msg = -1;
-
-    uintptr_t addr = -1;
-
-    smu_amd* smu;
-
-    cpuid(1, cpuregs);
-
-    /* follows CPUID AMD spec standard, however, AMD CPUs after 2003 all have base family as 0xF */
-    family = ((cpuregs[0] & 0xF00) >> 8) == 0xF ? ((cpuregs[0] & 0xF00) >> 0x8) + (( cpuregs[0] & 0xFF00000) >> 0x14) : (cpuregs[0] & 0xF00) >> 8;
-    model = ((cpuregs[0] & 0xF00) >> 8) == 0xF ? ((cpuregs[0] & 0xF0000) >> 0xC ) | ((cpuregs[0] & 0xF0) >> 4): (cpuregs[0] & 0xF0) >> 4;
-
-    _get_design_amd(family, model, &design);
 
     switch(design){
         case DESIGN_RAVEN:
@@ -496,32 +475,109 @@ float _get_TDP_amd(){
         case DESIGN_PHOENIX_2:
             table_msg = 0x66;
             break;
+        default:
+            return -1;
+            break;
     }
 
-    if(table_msg != (uint64_t)-1){
+    if(table_msg != (uint32_t)-1){
         uint32_t res;
 
-        smu = _get_smu_amd();
-        res = _smu_amd_send_req(smu, table_msg, smuargs);
+        *smu = _get_smu_amd();
+        res = _smu_amd_send_req(*smu, table_msg, smuargs);
         
         if(res != 1){
-            return 0.0f;
+            return -1;
         }
 
         switch(design){
             case DESIGN_REMBRANDT:
             case DESIGN_PHOENIX:
             case DESIGN_PHOENIX_2:
-                addr = (uint64_t) smuargs[1] << 32 | smuargs[0];
-                break;
+                *addr = (uint64_t) smuargs[1] << 32 | smuargs[0];
+                return 0;
             default:
-                addr = (uint64_t)smuargs[0];
-                break;
+                *addr = (uint64_t)smuargs[0];
+                return 0;
+        }
+    }
+    else{
+        return -1;
+    }
+
+}
+
+uint32_t _refresh_table(uint32_t design, smu_amd** smu, uint32_t* smuargs){
+    uint32_t table_msg = -1;
+
+    switch(design){
+        case DESIGN_RAVEN:
+        case DESIGN_PICASSO:
+        case DESIGN_DALI:
+            smuargs[0] = 3;
+            table_msg = 0x3D;
+            break;
+        
+        case DESIGN_RENOIR:
+        case DESIGN_LUCIENNE:
+        case DESIGN_CEZANNE:
+        case DESIGN_REMBRANDT:
+        case DESIGN_PHOENIX:
+        case DESIGN_PHOENIX_2:
+            table_msg = 0x65;
+            break;
+        default:
+            return -1;
+            break;
+    }
+
+    if(table_msg != (uint32_t)-1){
+        uint32_t res;
+
+        res = _smu_amd_send_req(*smu, table_msg, smuargs);
+
+        if(res == 253){
+            usleep(200 * 1000);
+            res = _smu_amd_send_req(*smu, table_msg, smuargs);
+        }
+
+        if(res == 253){
+            return -1;
         }
     }
 
+    return 0;
+}
+
+float _get_TDP_amd(){
+    float uw;
+
+    uint32_t cpuregs[4];
+    uint32_t smuargs[2] = {0};
+
+    uint32_t family;
+    uint32_t model;
+    uint32_t design = 0;
+
+    uintptr_t addr = -1;
+
+    smu_amd* smu = NULL;
+
+    cpuid(1, cpuregs);
+
+    /* follows CPUID AMD spec standard, however, AMD CPUs after 2003 all have base family as 0xF */
+    family = ((cpuregs[0] & 0xF00) >> 8) == 0xF ? ((cpuregs[0] & 0xF00) >> 0x8) + (( cpuregs[0] & 0xFF00000) >> 0x14) : (cpuregs[0] & 0xF00) >> 8;
+    model = ((cpuregs[0] & 0xF00) >> 8) == 0xF ? ((cpuregs[0] & 0xF0000) >> 0xC ) | ((cpuregs[0] & 0xF0) >> 4): (cpuregs[0] & 0xF0) >> 4;
+
+    _get_design_amd(family, model, &design);
+
+    if(_request_addr(design, &addr, &smu, smuargs) == (uint32_t)-1){
+        return 0.0f;
+    }
+
     if(addr != (uint64_t)-1){
-        _map_dev_addr(addr);
+        _map_dev_addr(addr); 
+        _refresh_table(design, &smu, smuargs);
 
         uw = *(float*)((uintptr_t)phys_map + 0x8);
     }
