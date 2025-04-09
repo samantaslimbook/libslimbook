@@ -1,3 +1,23 @@
+/*
+Copyright (C) 2025 Slimbook <dev@slimbook.es>
+
+This file is part of libslimbook.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "common.h"
 
 using namespace std;
@@ -57,4 +77,21 @@ vector<string> get_modules()
     file.close();
     
     return modules;
+}
+
+uint16_t swap16(uint16_t data){
+    return (data << 8)|((data >> 8) & 0xFF);
+}
+
+uint32_t swap32(uint32_t data){
+    return ((data & 0xFF000000) >> 24) | ((data & 0x00FF0000) >> 8) | 
+    ((data & 0x0000FF00) << 8) | ((data & 0x000000FF) << 24);
+}
+
+/* 0 LE 1 BE*/
+int32_t check_endianness(void){
+    uint32_t magic = 0xCAFEBEEF;
+    char* val = (char*)&magic;
+
+    return *val == 0xEF;
 }

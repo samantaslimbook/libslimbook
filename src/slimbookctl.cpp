@@ -21,10 +21,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "slimbook.h"
 #include "common.h"
 
+#define LEGACY_PCI
+
 #include <cpuid.h>
+#ifdef LEGACY_PCI
 extern "C"{
 #include <pci/pci.h>
 }
+#else 
+#include "pci.h"
+#endif
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -372,22 +378,29 @@ typedef struct _smu_amd{
     uint32_t arg_base;
 }smu_amd;
 
-#define MSG_MSG_ADDR 0x3B10a20
-#define MSG_RES_ADDR 0x3B10a80
-#define MSG_ARG_BASE_ADDR 0x3B10a88
+#define MSG_MSG_ADDR 0x03B10A20
+#define MSG_RES_ADDR 0x03B10A80
+#define MSG_ARG_BASE_ADDR 0x03B10A88
 
 smu_amd* _get_smu_amd(){
+    #ifndef LEGACY_PCI
+    pci_access* o = pci_access_alloc(); //pci_access_alloc
+    pci_dev* dev;
+    #else
     struct pci_access* o = pci_alloc();
     struct pci_dev* dev;
+    #endif
     smu_amd* smu;
     
     smu = (smu_amd*)((char*)malloc(sizeof(smu_amd)));
 
+    #ifndef LEGACY_PCI
+    pci_init_dev(o); //pci_init_dev
+    #else
     pci_init(o);
+    #endif
 
-    dev = pci_get_dev(o, 0,0,0,0);
-    pci_fill_info(dev, PCI_FILL_IDENT|PCI_FILL_BASES|PCI_FILL_CLASS);
-
+    dev = pci_get_dev(o, 0,0,0,0); //pci_get_dev
 
     smu->dev = dev;
     smu->msg = MSG_MSG_ADDR;
@@ -426,6 +439,9 @@ uint32_t _smu_amd_send_req(smu_amd* smu, uint32_t msg, uint32_t* args){
     _pci_reg_wr(smu->dev, MSG_ARG_ADDR(smu->arg_base, 0), args[0]);
     _pci_reg_wr(smu->dev, MSG_ARG_ADDR(smu->arg_base, 1), args[1]);
 
+    // cout << args[0] << endl;
+    // cout << args[1] << endl;
+
     _pci_reg_wr(smu->dev, smu->msg, msg);
 
     while(res == 0){
@@ -435,6 +451,8 @@ uint32_t _smu_amd_send_req(smu_amd* smu, uint32_t msg, uint32_t* args){
     args[0] = _pci_reg_rd(smu->dev, MSG_ARG_ADDR(smu->arg_base, 0));
     args[1] = _pci_reg_rd(smu->dev, MSG_ARG_ADDR(smu->arg_base, 1));
 
+    //    cout << std::hex << args[0] << endl;
+    //    cout << std::hex <<  args[1] << endl;
 
     return res;
 }
@@ -582,6 +600,9 @@ float _get_TDP_amd(){
         uw = *(float*)((uintptr_t)phys_map + 0x8);
     }
 
+    #ifndef LEGACY_PCI
+    pci_cleanup(smu->dev);
+    #endif
     _clear_smu_amd(smu);
     _free_map_dev();
 
