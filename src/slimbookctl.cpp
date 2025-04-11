@@ -72,7 +72,8 @@ static int run_command(string file, vector<string>args)
         }
 
         argv[n] = nullptr;
-        
+        //switching to root UID
+        setuid(0);
         int status = execvp(argv[0], argv);
 
         if (status < 0) {
