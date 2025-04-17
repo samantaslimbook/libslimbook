@@ -58,22 +58,31 @@ struct pci_dev {
 /* Allocates a pci_access struct */
 pci_access* pci_access_alloc();
 
+/* Gets a pci_dev from access, domain, dev, bus and func */
 pci_dev* pci_get_dev(pci_access* a, int32_t domain, int32_t dev, int32_t bus, int32_t func);
 
+/* Initialises the pci_access */
 void pci_init_dev(pci_access* a);
 
+/* Reads a byte from pci_dev at pos */
 uint8_t pci_read_char(pci_dev* dev, int32_t pos);
 
+/* Reads two bytes from pci_dev at pos */
 uint16_t pci_read_short(pci_dev* dev, int32_t pos);
 
+/* Reads four bytes from pci_dev at pos */
 uint32_t pci_read_long(pci_dev* dev, int32_t pos);
 
+/* Writes a byte from pci_dev at pos */
 void pci_write_char(pci_dev* dev, int32_t pos, uint8_t data);
 
+/* Writes two bytes from pci_dev at pos */
 void pci_write_short(pci_dev* dev, int32_t pos, uint16_t data);
 
+/* Writes four bytes from pci_dev at pos */
 void pci_write_long(pci_dev* dev, int32_t pos, uint32_t data);
 
+/* Frees the pci_dev */
 void pci_cleanup(pci_dev* dev);
 
 #endif

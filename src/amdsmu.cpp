@@ -167,7 +167,7 @@ static smu_amd* _get_smu_amd(){
 
     pci_init_dev(o);
 
-
+    /* Assumes device 0000:00:00.0 is free */
     dev = pci_get_dev(o, 0,0,0,0);
 
     smu->dev = dev;
