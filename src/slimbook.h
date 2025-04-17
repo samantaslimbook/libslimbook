@@ -161,6 +161,14 @@ typedef struct {
     uint8_t status : 3;
 } slb_sys_battery_info;
 
+typedef struct {
+    uint8_t low_tdp;
+    uint8_t medium_tdp;
+    uint8_t max_tdp;
+
+    /* AMD mentions 3 types of TDP while Intel only shows max, 0 Intel, 1 AMD */
+    uint8_t type : 2; 
+} slb_tdp_info_t;
 
 /* Retrieves DMI info and cache it. No need to call this function */
 extern "C" int32_t slb_info_retrieve();
@@ -218,6 +226,9 @@ extern "C" uint64_t slb_info_total_memory();
 
 /* Gets available system memory (not used by any process or buffer) */
 extern "C" uint64_t slb_info_available_memory();
+
+/* Gets current TDP */
+extern "C" slb_tdp_info_t slb_info_get_tdp_info();
 
 /* Gets keyboard device path, or null if does not apply */
 extern "C" const char* slb_info_keyboard_device();
