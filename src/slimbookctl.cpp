@@ -20,7 +20,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "slimbook.h"
 #include "common.h"
+#include "amdsmu.h"
 
+#include "pci.h"
+#include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -30,7 +33,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <map>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -290,11 +292,33 @@ string get_info()
         for (int n=0;n<count;n++) {
             if (entries[n].type == 4) {
                 string name = trim(entries[n].data.processor.version);
-                
                 int count = entries[n].data.processor.threads;
+                slb_tdp_info_t tdp = {0};
                  
                 sout<<"cpu:"<<name<<" x "<<count<<endl;
-            }
+
+                tdp = slb_info_get_tdp_info();
+
+                sout << "TDP: ";
+
+                switch(tdp.type){
+                    case 0:
+                        sout << tdp.max_tdp << " W" << endl;
+                        break;
+
+                    case 1:
+                        sout << "\nLOW: " << (int)tdp.low_tdp << " W";
+                        sout << "\nMEDIUM: " << (int)tdp.medium_tdp << " W";
+                        sout << "\nMAX: " << (int)tdp.max_tdp << " W";
+
+                        sout << "\n";
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }  
             
             if (entries[n].type == 17) {
                 if (entries[n].data.memory_device.type > 2) {
