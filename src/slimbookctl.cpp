@@ -302,13 +302,13 @@ string get_info()
 
                 switch (tdp.type) {
                     case SLB_TDP_TYPE_INTEL:
-                        sout << "TDP: "<< (int)tdp.max_tdp << " W\n";
+                        sout << "TDP: "<< (int)tdp.sustained << " W\n";
                         break;
 
                     case SLB_TDP_TYPE_AMD:
-                        sout << "TDP sustained (stapm): " << (int)tdp.medium_tdp << " W\n";
-                        sout << "TDP slow limit (ppt-s): " << (int)tdp.low_tdp << " W\n";
-                        sout << "TDP fast limit (ppt-l): " << (int)tdp.max_tdp << " W\n";
+                        sout << "TDP sustained (stapm): " << (int)tdp.sustained << " W\n";
+                        sout << "TDP slow limit (ppt-s): " << (int)tdp.slow << " W\n";
+                        sout << "TDP fast limit (ppt-l): " << (int)tdp.fast << " W\n";
                         break;
 
                     default:

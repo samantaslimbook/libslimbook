@@ -166,12 +166,12 @@ typedef struct {
 } slb_sys_battery_info;
 
 typedef struct {
-    uint8_t low_tdp;
-    uint8_t medium_tdp;
-    uint8_t max_tdp;
+    uint8_t slow;
+    uint8_t fast;
+    uint8_t sustained;
 
     /* AMD mentions 3 types of TDP while Intel only shows max, 0 Intel, 1 AMD */
-    uint8_t type : 2; 
+    uint8_t type : 2;
 } slb_tdp_info_t;
 
 /* Retrieves DMI info and cache it. No need to call this function */

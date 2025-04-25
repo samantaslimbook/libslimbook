@@ -527,7 +527,7 @@ slb_tdp_info_t _get_TDP_intel()
         string svalue;
         read_device(INTEL_RAPL_PATH"constraint_0_power_limit_uw", svalue);
 
-        tdp.max_tdp = atoll(svalue.c_str()) / 1000000;
+        tdp.sustained = atoll(svalue.c_str()) / 1000000;
     }
     
     return tdp;
@@ -569,9 +569,9 @@ slb_tdp_info_t _get_TDP_amd()
 
         #define get_prop_from_offs(addr, offs) ((uint8_t)(*(float*)((uintptr_t)*(addr) + (offs))))
 
-        tdp.medium_tdp = get_prop_from_offs(phys_addr, 0x0);
-        tdp.max_tdp = get_prop_from_offs(phys_addr, 0x8);
-        tdp.low_tdp = get_prop_from_offs(phys_addr, 0x10);
+        tdp.sustained = get_prop_from_offs(phys_addr, 0x0);
+        tdp.fast = get_prop_from_offs(phys_addr, 0x8);
+        tdp.slow = get_prop_from_offs(phys_addr, 0x10);
     }
 
     pci_cleanup(smu->dev);
