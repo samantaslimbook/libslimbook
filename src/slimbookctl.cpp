@@ -301,11 +301,11 @@ string get_info()
                 tdp = slb_info_get_tdp_info();
 
                 switch (tdp.type) {
-                    case 0:
+                    case SLB_TDP_TYPE_INTEL:
                         sout << "TDP: "<< (int)tdp.max_tdp << " W\n";
                         break;
 
-                    case 1:
+                    case SLB_TDP_TYPE_AMD:
                         sout << "TDP sustained (stapm): " << (int)tdp.medium_tdp << " W\n";
                         sout << "TDP slow limit (ppt-s): " << (int)tdp.low_tdp << " W\n";
                         sout << "TDP fast limit (ppt-l): " << (int)tdp.max_tdp << " W\n";

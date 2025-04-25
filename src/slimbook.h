@@ -121,6 +121,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_QC71_PROFILE_BALANCED       0x02
 #define SLB_QC71_PROFILE_PERFORMANCE    0x03
 
+#define SLB_TDP_TYPE_UNKNOWN            0x00
+#define SLB_TDP_TYPE_INTEL              0x01
+#define SLB_TDP_TYPE_AMD                0x02
+
 typedef struct {
     /* device size in bytes */
     uint64_t size;

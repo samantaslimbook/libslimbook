@@ -521,7 +521,7 @@ uint64_t slb_info_available_memory()
 slb_tdp_info_t _get_TDP_intel()
 {
     #define INTEL_RAPL_PATH "/sys/class/powercap/intel-rapl/intel-rapl:0/"
-    slb_tdp_info_t tdp = {0};
+    slb_tdp_info_t tdp = {0,0,0, .type = SLB_TDP_TYPE_INTEL};
 
     if(filesystem::exists(INTEL_RAPL_PATH)){
         string svalue;
@@ -536,7 +536,7 @@ slb_tdp_info_t _get_TDP_intel()
 /* Gets TDP from smu driver in PCI */
 slb_tdp_info_t _get_TDP_amd()
 {
-    slb_tdp_info_t tdp = {0,0,0, .type = 1};
+    slb_tdp_info_t tdp = {0,0,0, .type = SLB_TDP_TYPE_AMD};
 
     uint32_t cpuregs[4];
     uint32_t smuargs[2] = {0};
@@ -598,23 +598,29 @@ static string _get_cpu_name(){
 
 slb_tdp_info_t slb_info_get_tdp_info()
 {
-    slb_tdp_info_t tdp = {0, .type = 3};
+    slb_tdp_info_t tdp = {0,0,0, .type = SLB_TDP_TYPE_UNKNOWN};
     int32_t cpu_type;
-    string name = _get_cpu_name();
+    
+    try {
+        string name = _get_cpu_name();
 
-    cpu_type = name.find("AMD") != std::string::npos ? 1 : name.find("Intel") != std::string::npos ? 0 : -1;
+        cpu_type = name.find("AMD") != std::string::npos ? SLB_TDP_TYPE_AMD : name.find("Intel") != std::string::npos ? SLB_TDP_TYPE_INTEL : -1;
 
-    switch(cpu_type){
-        case 0:
-            tdp = _get_TDP_intel();
-            break;
-        case 1:
-            tdp = _get_TDP_amd();
-            break;
-        default:
-            break;
+        switch(cpu_type){
+            case SLB_TDP_TYPE_INTEL:
+                tdp = _get_TDP_intel();
+                break;
+            case SLB_TDP_TYPE_AMD:
+                tdp = _get_TDP_amd();
+                break;
+            default:
+                break;
+        }
     }
-
+    catch(...) {
+        // no need to take actions
+    }
+    
     return tdp;
 }
 
