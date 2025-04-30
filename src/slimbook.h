@@ -125,6 +125,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SLB_TDP_TYPE_INTEL              0x01
 #define SLB_TDP_TYPE_AMD                0x02
 
+#define SLB_BAT_STATE_UNKNOWN           0x00
+#define SLB_BAT_STATE_CHARGING          0x01
+#define SLB_BAT_STATE_DISCHARGING       0x02
+#define SLB_BAT_STATE_NOT_CHARGING      0x03
+#define SLB_BAT_STATE_FULL              0x04
+
 typedef struct {
     /* device size in bytes */
     uint64_t size;

@@ -241,31 +241,6 @@ string get_info()
     // boot mode
 
     sout << (std::filesystem::exists("/sys/firmware/efi") ? "boot mode: UEFI\n" : "boot mode: legacy\n");
-
-    int ac_state;
-    
-    if (slb_info_get_ac_state(0, &ac_state) == 0) {
-        string ac_state_text;
-        
-        switch (ac_state) {
-            case 0:
-                ac_state_text = "Offline";
-            break;
-            
-            case 1:
-                ac_state_text = "Online";
-            break;
-            
-            case 2:
-                ac_state_text = "Online Programmable";
-            break;
-            
-            default:
-                ac_state_text = "unknown";
-        }
-        
-        sout<<"ac: "<<ac_state_text<<"\n";
-    }
     
     sout<<"\n";
     
@@ -358,25 +333,50 @@ string get_info()
 
     sout<<"\n";
 
+    int ac_state;
+    
+    if (slb_info_get_ac_state(0, &ac_state) == 0) {
+        string ac_state_text;
+        
+        switch (ac_state) {
+            case 0:
+                ac_state_text = "Offline";
+            break;
+            
+            case 1:
+                ac_state_text = "Online";
+            break;
+            
+            case 2:
+                ac_state_text = "Online Programmable";
+            break;
+            
+            default:
+                ac_state_text = "unknown";
+        }
+        
+        sout<<"ac: "<<ac_state_text<<"\n";
+    }
+    
     slb_sys_battery_info bat = {0};
 
     if(slb_battery_info_get(&bat) == 0){
         string stat;
 
         switch(bat.status){
-            case 0:
+            case SLB_BAT_STATE_UNKNOWN:
                 stat = "Unknown";
                 break;
-            case 1:
+            case SLB_BAT_STATE_CHARGING:
                 stat = "Charging";
                 break;
-            case 2:
+            case SLB_BAT_STATE_DISCHARGING:
                 stat = "Discharging";
                 break;
-            case 3:
+            case SLB_BAT_STATE_NOT_CHARGING:
                 stat = "Not charging";
                 break;
-            case 4:
+            case SLB_BAT_STATE_FULL:
                 stat = "Full";
                 break;
             default:
