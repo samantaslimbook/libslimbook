@@ -275,22 +275,24 @@ string get_info()
 
                 tdp = slb_info_get_tdp_info();
 
-                if(tdp.slow != 0 && tdp.sustained != 0 && tdp.fast != 0){
-                    switch (tdp.type) {
-                        case SLB_TDP_TYPE_INTEL:
-                            sout << "TDP: "<< (int)tdp.sustained << " W\n";
-                            break;
+                switch (tdp.type) {
+                    case SLB_TDP_TYPE_INTEL:
+                        sout << "TDP: "<< (int)tdp.sustained << " W\n";
+                        break;
 
-                        case SLB_TDP_TYPE_AMD:
-                            sout << "TDP sustained (stapm): " << (int)tdp.sustained << " W\n";
-                            sout << "TDP slow limit (ppt-s): " << (int)tdp.slow << " W\n";
-                            sout << "TDP fast limit (ppt-l): " << (int)tdp.fast << " W\n";
-                            break;
+                    case SLB_TDP_TYPE_AMD:
+                        sout << "TDP sustained (stapm): " << (int)tdp.sustained << " W\n";
+                        sout << "TDP slow limit (ppt-s): " << (int)tdp.slow << " W\n";
+                        sout << "TDP fast limit (ppt-l): " << (int)tdp.fast << " W\n";
+                        break;
 
-                        default:
-                            break;
-                    }
+                    case SLB_TDP_TYPE_UNKNOWN:
+                        /* do nothing */
+                        cerr<<"Failed to fetch TDP"<<endl;
+                    default:
+                        break;
                 }
+
                 sout << "\n";
             }
 
