@@ -564,7 +564,9 @@ slb_tdp_info_t _get_TDP_amd()
     }
 
     if(addr != (uint64_t)-1){
-        _map_dev_addr(addr); 
+        if(_map_dev_addr(addr)){
+            return tdp;
+        } 
         _refresh_table(design, &smu, smuargs);
 
         #define get_prop_from_offs(addr, offs) ((uint8_t)(*(float*)((uintptr_t)*(addr) + (offs))))
