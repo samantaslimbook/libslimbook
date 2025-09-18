@@ -42,6 +42,7 @@ using namespace std;
 #define SYSFS_DMI "/sys/devices/virtual/dmi/id/"
 #define SYSFS_QC71 "/sys/devices/platform/qc71_laptop/"
 #define SYSFS_CLEVO "/sys/devices/platform/clevo_platform/"
+#define SYSFS_LED_KBD "/sys/class/leds/rgb:kbd_backlight/"
 
 #define MODULE_QC71 "qc71_laptop"
 #define MODULE_CLEVO "clevo_platform"
@@ -770,7 +771,7 @@ int slb_kbd_backlight_get(uint32_t model, uint32_t* color)
 
 int slb_kbd_backlight_set(uint32_t model, uint32_t color)
 {
-   if (model == 0) {
+    if (model == 0) {
         model = slb_info_get_model();
     }
     
@@ -818,6 +819,55 @@ int slb_kbd_backlight_set(uint32_t model, uint32_t color)
             return 0;
         }
         catch (...) {
+            return EIO;
+        }
+    }
+    
+    return ENOENT;
+}
+
+int slb_kbd_brightness_get(uint32_t model, uint32_t* brightness)
+{
+    string svalue;
+    
+    if (model == 0) {
+        model = slb_info_get_model();
+    }
+    
+    if (model == 0) {
+        return ENOENT;
+    }
+    
+    if (model == SLB_MODEL_HERO_RPL_RTX or model == SLB_MODEL_CREATIVE_15_A8_RTX) {
+        try {
+            read_device(SYSFS_LED_KBD"brightness",svalue);
+            *brightness = std::stoi(svalue,0,0);
+        }
+        catch(...) {
+            return EIO;
+        }
+    }
+    
+    return ENOENT;
+}
+
+int slb_kbd_brightness_set(uint32_t model, uint32_t brightness)
+{
+    if (model == 0) {
+        model = slb_info_get_model();
+    }
+    
+    if (model == 0) {
+        return ENOENT;
+    }
+    
+    if (model == SLB_MODEL_HERO_RPL_RTX or model == SLB_MODEL_CREATIVE_15_A8_RTX) {
+        try {
+            stringstream ss;
+            ss<<brightness;
+            write_device(SYSFS_LED_KBD"brightness",ss.str());
+        }
+        catch(...) {
             return EIO;
         }
     }
