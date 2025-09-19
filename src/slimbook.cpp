@@ -150,6 +150,35 @@ uint32_t info_platform;
 uint32_t info_model;
 int32_t info_confidence;
 
+static vector<string> split(string input,char sep)
+{
+    vector<string> tmp;
+    bool knee = false;
+    string current;
+    
+    for (char c:input) {
+        
+        if (c != sep) {
+            current.push_back(c);
+            knee = true;
+        }
+        else {
+            if (knee == true) {
+                tmp.push_back(current);
+                current="";
+                knee = false;
+            }
+            
+        }
+    }
+    
+    if (current.size() > 0) {
+        tmp.push_back(current);
+    }
+    
+    return tmp;
+}
+
 static int min3i(int a,int b,int c)
 {
     if (a <= b && a <= c) {
@@ -1244,6 +1273,48 @@ int slb_qc71_profile_set(uint32_t value)
         stringstream ss;
         ss<<value;
         write_device(SYSFS_QC71"performance_mode",ss.str());
+    }
+    catch (...) {
+        return EIO;
+    }
+
+    return SLB_SUCCESS;
+}
+
+int slb_qc71_custom_tdp_get(uint32_t* pl1, uint32_t* pl2, uint32_t* pl4)
+{
+    if (pl1 == nullptr or pl2 == nullptr or pl4 == nullptr) {
+        return EINVAL;
+    }
+    
+    try {
+        string svalue;
+        read_device(SYSFS_QC71"custom_tdp",svalue);
+        vector<string> pl = split(svalue," ");
+        
+        *pl1 = std::stoi(pl[0],0,0);
+        *pl2 = std::stoi(pl[1],0,0);
+        *pl4 = std::stoi(pl[2],0,0);
+    }
+    catch (...) {
+        return EIO;
+    }
+    
+    return SLB_SUCCESS;
+}
+
+int slb_qc71_custom_tdp_set(uint32_t pl1, uint32_t pl2, uint32_t pl4)
+{
+    const uint32_t max_tdp = 80;
+    
+    pl1 = std::min(pl1,max_tdp);
+    pl2 = std::min(pl2,max_tdp);
+    pl4 = std::min(pl4,max_tdp);
+    
+    try {
+        stringstream ss;
+        ss<<pl1<<" "<<pl2<<" "<<pl4;
+        write_device(SYSFS_QC71"custom_tdp",ss.str());
     }
     catch (...) {
         return EIO;

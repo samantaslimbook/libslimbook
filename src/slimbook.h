@@ -325,3 +325,10 @@ extern "C" int slb_qc71_profile_get(uint32_t* value);
 
 /* Sets profile */
 extern "C" int slb_qc71_profile_set(uint32_t value);
+
+/* Gets custom TDP */
+extern "C" int slb_qc71_custom_tdp_get(uint32_t* pl1, uint32_t* pl2, uint32_t* pl4);
+
+/* Sets custom TDP */
+extern "C" int slb_qc71_custom_tdp_set(uint32_t pl1, uint32_t pl2, uint32_t pl4);
+
