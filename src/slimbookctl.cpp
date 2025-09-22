@@ -554,6 +554,71 @@ int main(int argc,char* argv[])
         return 0;
     }
     
+    if (command == "set-kbd-brightness") {
+        if (argc<2) {
+            return 1; //better return value
+        }
+        
+        uint32_t value = std::stoi(argv[2],0,16);
+        
+        int status = slb_kbd_brightness_set(0,value);
+        
+        if (status > 0) {
+            cerr<<"Failed to set keyboard brightness:"<<status<<endl;
+            return status;
+        }
+        
+        return 0;
+    }
+    
+    if (command == "get-kbd-brightness") {
+        uint32_t value;
+        int status = slb_kbd_brightness_get(0,&value);
+        
+        if (status > 0) {
+            cerr<<"Failed to retrieve keyboard brightness:"<<status<<endl;
+            return status;
+        }
+        
+        cout<<std::hex<<std::setw(2)<<std::setfill('0')<<value<<endl;
+        
+        return 0;
+    }
+    
+    if (command == "set-custom-tdp") {
+        if (argc < 4) {
+            //show help?
+            return 1;
+        }
+        
+        uint32_t pl1 = std::stoi(argv[2],0,0);
+        uint32_t pl2 = std::stoi(argv[3],0,0);
+        uint32_t pl4 = std::stoi(argv[4],0,0);
+        
+        int status = slb_qc71_custom_tdp_set(pl1,pl2,pl4);
+        
+        if (status > 0) {
+            cerr<<"Failed to set TDP values, error:"<<status<<endl;
+            return status;
+        }
+    }
+    
+    if (command == "get-custom-tdp") {
+        uint32_t pl1,pl2,pl4;
+        int status;
+        
+        status = slb_qc71_custom_tdp_get(&pl1,&pl2,&pl4);
+        
+        if (status > 0) {
+            cerr<<"Failed to retrieve TDP values, error:"<<status<<endl;
+            return status;
+        }
+        
+        cout<<pl1<<" "<<pl2<<" "<<pl4<<endl;
+        
+        return 0;
+    }
+    
     if (command == "config-load") {
         clog<<"loading slimbook configuration:";
         int status = slb_config_load(0);

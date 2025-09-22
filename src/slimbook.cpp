@@ -1290,7 +1290,7 @@ int slb_qc71_custom_tdp_get(uint32_t* pl1, uint32_t* pl2, uint32_t* pl4)
     try {
         string svalue;
         read_device(SYSFS_QC71"custom_tdp",svalue);
-        vector<string> pl = split(svalue," ");
+        vector<string> pl = split(svalue,' ');
         
         *pl1 = std::stoi(pl[0],0,0);
         *pl2 = std::stoi(pl[1],0,0);
