@@ -177,6 +177,8 @@ void show_help()
     cout<<"info: display Slimbook model information"<<endl;
     cout<<"get-kbd-backlight: shows current keyboard backlight value in 32bit hexadecimal"<<endl;
     cout<<"set-kbd-backlight HEX: sets keyboard backlight as 32bit hexadecimal"<<endl;
+    cout<<"get-kbd-brightness: shows current keyboard brightness value"<<endl;
+    cout<<"set-kbd-brightness VALUE: sets keyboard brightness value [0-255]"<<endl;
     cout<<"config-load: loads module settings"<<endl;
     cout<<"config-store: stores module settings to disk"<<endl;
     cout<<"report: creates a tar.gz with system information"<<endl;
@@ -525,6 +527,7 @@ int main(int argc,char* argv[])
     
     if (command == "set-kbd-backlight") {
         if (argc<2) {
+            show_help();
             return 1; //better return value
         }
         
@@ -556,6 +559,7 @@ int main(int argc,char* argv[])
     
     if (command == "set-kbd-brightness") {
         if (argc<2) {
+            show_help();
             return 1; //better return value
         }
         
@@ -587,7 +591,7 @@ int main(int argc,char* argv[])
     
     if (command == "set-custom-tdp") {
         if (argc < 4) {
-            //show help?
+            show_help();
             return 1;
         }
         
@@ -595,7 +599,14 @@ int main(int argc,char* argv[])
         uint32_t pl2 = std::stoi(argv[3],0,0);
         uint32_t pl4 = std::stoi(argv[4],0,0);
         
-        int status = slb_qc71_custom_tdp_set(pl1,pl2,pl4);
+        int status = slb_qc71_manual_control_set(1);
+        
+        if (status > 0) {
+            cerr<<"Failed to switch to manual mode"<<endl;
+            return status;
+        }
+        
+        status = slb_qc71_custom_tdp_set(pl1,pl2,pl4);
         
         if (status > 0) {
             cerr<<"Failed to set TDP values, error:"<<status<<endl;

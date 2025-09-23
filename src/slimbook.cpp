@@ -747,28 +747,21 @@ int slb_kbd_backlight_get(uint32_t model, uint32_t* color)
     if (model == SLB_MODEL_HERO_RPL_RTX or model == SLB_MODEL_CREATIVE_15_A8_RTX) {
         try {
             string svalue;
-            uint32_t rgb;
-            uint32_t ival;
             
-            read_device(SYSFS_QC71"kbd_backlight_rgb_red",svalue);
-            ival = std::stoi(svalue,0,16);
-            float mp = ival/200.0f; //0xC8
-            ival = mp * 255.0f;
-            rgb = ival<<16;
+            read_device(SYSFS_LED_KBD"multi_intensity",svalue);
+            vector<string> pl = split(svalue,' ');
             
-            read_device(SYSFS_QC71"kbd_backlight_rgb_green",svalue);
-            ival = std::stoi(svalue,0,16);
-            mp = ival/200.0f; //0xC8
-            ival = mp * 255.0f;
-            rgb = rgb | (ival<<8);
+            uint32_t red,green,blue;
             
-            read_device(SYSFS_QC71"kbd_backlight_rgb_blue",svalue);
-            ival = std::stoi(svalue,0,16);
-            mp = ival/200.0f; //0xC8
-            ival = mp * 255.0f;
-            rgb = rgb | ival;
+            red = std::stoi(pl[0],0,0);
+            green = std::stoi(pl[1],0,0);
+            blue = std::stoi(pl[2],0,0);
             
-            *color = rgb;
+            uint32_t rgb = blue;
+            rgb = rgb | (green << 8);
+            rgb = rgb | (red << 16);
+            
+            *color = red;
             
             return 0;
         }
@@ -812,25 +805,10 @@ int slb_kbd_backlight_set(uint32_t model, uint32_t color)
         stringstream ss;
         try {
             uint32_t red = (color & 0x00ff0000) >> 16;
-            float mp = red/255.0f;
-            red = mp * 0xC8;
-            ss<<std::hex<<"0x"<<std::setfill('0')<<std::setw(2)<<red;
-            write_device(SYSFS_QC71"kbd_backlight_rgb_red",ss.str());
-            
-            
             uint32_t green = (color & 0x0000ff00) >> 8;
-            mp = green/255.0f;
-            green = mp * 0xC8;
-            ss.str("");
-            ss<<"0x"<<std::setfill('0')<<std::setw(2)<<green;
-            write_device(SYSFS_QC71"kbd_backlight_rgb_green",ss.str());
-            
             uint32_t blue = (color & 0x000000ff);
-            mp = blue/255.0f;
-            blue = mp * 0xC8;
-            ss.str("");
-            ss<<"0x"<<std::setfill('0')<<std::setw(2)<<blue;
-            write_device(SYSFS_QC71"kbd_backlight_rgb_blue",ss.str());
+            ss<<red<<" "<<green<<" "<<blue;
+            write_device(SYSFS_LED_KBD"multi_intensity",ss.str());
             
             return 0;
         }
