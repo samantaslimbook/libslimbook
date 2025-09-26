@@ -854,6 +854,10 @@ int slb_kbd_brightness_get(uint32_t model, uint32_t* brightness)
             return EIO;
         }
     }
+    else {
+        /* this is workaround for rgb-keyboard on clevo based models */
+        *brightness = 0xff;
+    }
     
     return ENOENT;
 }
