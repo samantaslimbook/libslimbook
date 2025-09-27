@@ -886,6 +886,35 @@ int slb_kbd_brightness_set(uint32_t model, uint32_t brightness)
     return ENOENT;
 }
 
+int slb_kbd_brightness_max(uint32_t model, uint32_t* max)
+{
+    string svalue;
+    
+    if (model == 0) {
+        model = slb_info_get_model();
+    }
+    
+    if (model == 0) {
+        return ENOENT;
+    }
+    
+    if (model == SLB_MODEL_HERO_RPL_RTX or model == SLB_MODEL_CREATIVE_15_A8_RTX) {
+        try {
+            read_device(SYSFS_LED_KBD"max_brightness",svalue);
+            *max = std::stoi(svalue,0,0);
+        }
+        catch(...) {
+            return EIO;
+        }
+    }
+    else {
+        /* this is workaround for rgb-keyboard on clevo based models */
+        *max = 0xff;
+    }
+    
+    return ENOENT;
+}
+
 int slb_config_load(uint32_t model)
 {
     if (model == 0) {
