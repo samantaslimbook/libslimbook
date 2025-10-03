@@ -849,6 +849,8 @@ int slb_kbd_brightness_get(uint32_t model, uint32_t* brightness)
         try {
             read_device(SYSFS_LED_KBD"brightness",svalue);
             *brightness = std::stoi(svalue,0,0);
+
+            return 0;
         }
         catch(...) {
             return EIO;
@@ -877,6 +879,8 @@ int slb_kbd_brightness_set(uint32_t model, uint32_t brightness)
             stringstream ss;
             ss<<brightness;
             write_device(SYSFS_LED_KBD"brightness",ss.str());
+
+            return 0;
         }
         catch(...) {
             return EIO;
